@@ -28,7 +28,7 @@
     "prepare": "husky install",
     "semantic-release": "semantic-release",
     "serve": "gatsby serve",
-    "deploy": "yarn run clean && gatsby build && gh-pages -d public -b master",
+    "deploy": "yarn run clean && gatsby build && gh-pages -d public -b main",
     "start": "npm run clean && gatsby develop",
     "test": "jest --config ./internal/testing/jest-config.ts",
     "test:update-snapshot": "jest --updateSnapshot --config ./internal/testing/jest-config.ts",
@@ -78,6 +78,7 @@
     "gatsby-source-filesystem": "^4.25.0",
     "gatsby-transformer-remark": "^5.25.1",
     "gatsby-transformer-sharp": "^4.25.0",
+    "gh-pages": "^6.1.1",
     "prismjs": "^1.29.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
