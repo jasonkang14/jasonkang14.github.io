@@ -1,13 +1,9 @@
 ---
 title: "About me"
 template: "page"
-socialImage: "./notebook.jpg"
 ---
 
-Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante.
+### Written by ChatGPT 
 
-![Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi.](/notebook.jpg)
+As a visionary Software Engineer with a comprehensive background spanning front-end development, large language models, and cloud computing, I leverage a blend of technical proficiency and innovative thinking to drive impactful solutions. My journey, enriched by experiences at prestigious organizations like GS Holdings and Playtag, has been marked by significant achievements, including pioneering performance management systems, enhancing web application efficiency, and leading development teams to new heights of success. I'm not just an engineer; I'm a catalyst for change, utilizing my expertise in AWS, Python, React.js, and more to transform ideas into reality. Holding a bachelor's degree in Chemical Engineering from the University of Illinois at Urbana-Champaign, my foundation is built on rigorous analysis and creative problem-solving. Beyond the code, I am passionate about fostering collaborative environments and mentoring the next generation of tech talent. Let's connect and explore how we can make a lasting impact in the tech landscape together.
 
-_Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est. Mauris placerat eleifend leo. Quisque sit amet est et sapien ullamcorper pharetra. Vestibulum erat wisi, condimentum sed, commodo vitae, ornare sit amet, wisi._
-
-Aenean fermentum, elit eget tincidunt condimentum, eros ipsum rutrum orci, sagittis tempus lacus enim ac dui. Donec non enim in turpis pulvinar facilisis. Ut felis. Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus
