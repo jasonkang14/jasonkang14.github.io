@@ -1,6 +1,7 @@
 ---
 title: "About me"
 template: "page"
+socialImage: "./photo.jpg"
 ---
 
 ### Written by ChatGPT 

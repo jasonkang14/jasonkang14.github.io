@@ -1,8 +1,9 @@
 ---
 title: "Contact me"
 template: "page"
-
+socialImage: "./photo.jpg"
 ---
+
 
 For inquiries, project collaborations, or networking opportunities, feel free to reach out through the following channels:
 
