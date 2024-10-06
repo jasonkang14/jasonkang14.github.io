@@ -1,9 +1,9 @@
 ---
-title: "What Is Pruning in Deep Learning?"
-date: "2024-10-061T20:35:37.121Z"
+title: "Pruning and Knowledge Distillation"
+date: "2024-10-06"
 template: "post"
 draft: false
-slug: "/ai/pruning-in-deep-learning"
+slug: "/ai/pruning-and-knowledge-distillation"
 category: "AI"
 tags:
   - "AI"
@@ -15,7 +15,7 @@ Llama 3.2 was released last month, introducing medium-sized vision language mode
 
 ![Llama3.2 Lightweight Model Pruning & Distillation](https://scontent-ssn1-1.xx.fbcdn.net/v/t39.2365-6/461209081_511117684875670_45564063096782202_n.png?_nc_cat=101&ccb=1-7&_nc_sid=e280be&_nc_ohc=4jldpTHNj_sQ7kNvgGQBwiI&_nc_ht=scontent-ssn1-1.xx&_nc_gid=AJpV1VOUAVjGT78cKoWunBl&oh=00_AYC4jxU5SJhXt6zCW5IMykHerSqGnKYgdsR-8SAUaiUHUA&oe=671C835E)
 
-<br><br>
+
 
 # Knowledge Distillation
 
@@ -34,7 +34,6 @@ The student model is then trained using these soft labels from the teacher model
 2. They provide a form of regularization, potentially improving generalization.
 3. They can help the student model learn more efficiently, often achieving performance closer to the teacher model with fewer parameters.
 
-<br><br>
 
 # Pruning
 
@@ -70,7 +69,6 @@ PyTorch provides various methods to perform unstructured pruning:
 
 A study titled [Post-training Deep Neural Network Pruning via Layer-wise Calibration](https://openaccess.thecvf.com/content/ICCV2021W/LPCV/papers/Lazarevich_Post-Training_Deep_Neural_Network_Pruning_via_Layer-Wise_Calibration_ICCVW_2021_paper.pdf) demonstrated that a weight reduction of up to 50% can be achieved with only a marginal accuracy loss of approximately 1.5%. The paper discusses the concept of `L2-Normalized Magnitude`, which involves normalizing weights by the L2 norm of a layer. This methodology has proven particularly effective in scenarios involving batch normalization layers.
 
-<br>
 
 ### Structured Pruning
 
