@@ -11,93 +11,84 @@ tags:
 description: "Explore pruning in deep learning, a technique for reducing model size and improving efficiency"
 ---
 
-Llama3.2 was released last month, featuring medium-sized vision LLMs (11B and 90B) alongside lightweight, text-only models (1B and 3B). Earlier this year, I worked on a mobile application designed to assist users in environments such as refineries and power plants—critical infrastructure where safety regulations and data protection are paramount. Given the often unstable internet connections at these sites, I believed it would be advantageous to explore one of the lightweight text-only models for both performance and security reasons. Consequently, I reviewed the [Llama3.2 release notes](https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/) to gain insights into its development.
-<br><br>
-# Vision models
+Llama 3.2 was released last month, introducing medium-sized vision language models (11B and 90B parameters) alongside lightweight, text-only models (1B and 3B). Notably, Meta has implemented `pruning` and `distillation` techniques on these lightweight models. As I have not previously explored `pruning`, I am eager to investigate its principles and understand the rationale behind Meta's application of this technique for their lightweight models.
 
-- Llama3.2 models (11B and 90B parameters) are the first in the Llama series to support vision tasks.
-- Requires a new architecture for image reasoning to integrate visual input with existing language capabilities.
-
-
-## Adding Image Input Support
-
-- Adapters use cross-attention layers to process image representations within the language model.
-  - Adapters are small neural network modules inserted into the layers of a pre-trained model 
-  - Their primary purpose is to introduce new capabitlies to the model, which is image processing in this case
-    - Adapters are added between the layers of the pre-trained model
-    - They learn task-specific knowldge and dapt the outputs of each layer to the new task, which is image processing 
-  - In the context of Llama3.2, the adapters connect the image encoder to the language model using cross-attention mechanisms. 
-- Introduces adapter weights to integrate a pre-trained image encoder into the language model.
-  - Adapter weights refer to the learnable parameters within the adapter modules.
-  - These weights are adjusted to align the new input modality with the existing model while maintaining the core model
-  
-## Training Pipeline
-### Pre-Training:
-  - Starts with pre-trained Llama3.1 text models.
-  - Image adapters and encoders are added.
-  - Pre-training uses a large-scale dataset of noisy image-text pairs.
-    - `Noisy` image-text pairs refer to datasets where the association between images and their corresponding textual descriptions is imperfect
-    - It is not that the images are labeled with wrong descriptions, its more like descriptions with less detail, and the model is supposed to find the detailed descriptions through training 
-
-### During training:
-  - Image encoder parameters are updated.
-  - Language model parameters remain unchanged, preserving Llama3.1's original text-only capabilities.
-
-### Fine-Tuning:
-  - Uses a medium-scale dataset of high-quality, in-domain, and knowledge-enhanced image-text pairs.
-  - to refine the model's capabilities for specific tasks and improve its overall performance
-
-### Post-Training and Alignment
-- **Supervised Fine-Tuning**: Conducts rounds of fine-tuning using supervised learning.
-- **Rejection Sampling**: Applies sampling methods to select the best-performing outputs.
-- **Preference Optimization**: Directly optimizes model outputs for better performance.
-
-
-## Synthetic Data Generation
-- Employs Llama3.1 to filter and augment questions and answers based on in-domain images.
-  - According to the [Llama3.1 Release Note](https://ai.meta.com/blog/meta-llama-3-1/), Llama3.1 405B is supposed to be good at synthetic data generation
-- Uses a reward model to rank candidate answers, creating high-quality fine-tuning data.
-
-
-## Safety and Agentic Capabilities
-- Includes safety mitigation data to maintain the model's helpfulness and ensure safe operation.
-- Enables deeper understanding and reasoning with multimodal (image and text) inputs.
-- Advances Llama models toward more sophisticated agentic capabilities.
-
+![Llama3.2 Lightweight Model Pruning & Distillation](https://scontent-ssn1-1.xx.fbcdn.net/v/t39.2365-6/461209081_511117684875670_45564063096782202_n.png?_nc_cat=101&ccb=1-7&_nc_sid=e280be&_nc_ohc=4jldpTHNj_sQ7kNvgGQBwiI&_nc_ht=scontent-ssn1-1.xx&_nc_gid=AJpV1VOUAVjGT78cKoWunBl&oh=00_AYC4jxU5SJhXt6zCW5IMykHerSqGnKYgdsR-8SAUaiUHUA&oe=671C835E)
 
 <br><br>
 
-# Lightweight models
+# Knowledge Distillation
 
-- Llama 3.2 introduces the first highly capable lightweight models (1B and 3B parameters) that can efficiently run on-device.
-- These models are created using two key methods: pruning and distillation.
+I possess extensive hands-on experience with knowledge distillation from my tenure at a medical AI startup specializing in Speech-to-Text (STT) technology for radiology. In this role, I contributed to the development of a lightweight model utilizing knowledge distillation techniques, optimizing it for deployment on local computers with limited computational resources.
+
+## What is Knowledge Distillation?
+While this post primarily focuses on pruning, I would like to briefly discuss knowledge distillation. Knowledge distillation is a method designed to transfer knowledge from a "teacher" model to a "student" model. Instead of relying solely on hard labels, this approach leverages the soft label outputs generated by the teacher model to provide more informative and nuanced guidance for training the student model. This process can be likened to the student model learning from the insights and expertise of the teacher model.
+
+Consider an image classification task aimed at distinguishing among three animal classes: dogs, cats, and tigers. Traditionally, we might use one-hot encoded labels, such as [0, 1, 0] to represent a cat. However, this hard labeling discards potential nuances in the data.
+
+In knowledge distillation, we first train a large, high-capacity teacher model. When presented with an image of a cat, this model might output a probability distribution like [0.05, 0.80, 0.15] for [dog, cat, tiger]. This soft label captures more information than the hard label, suggesting that while the image is most likely a cat, it shares some features with tigers and, to a lesser extent, dogs.
+
+The student model is then trained using these soft labels from the teacher model, often in combination with the original hard labels. The soft labels provide several advantages:
+
+1. They encode relationships between classes that are not captured by hard labels.
+2. They provide a form of regularization, potentially improving generalization.
+3. They can help the student model learn more efficiently, often achieving performance closer to the teacher model with fewer parameters.
+
+<br><br>
+
+# Pruning
+
+## What is Pruning?
+
+Returning to the topic of pruning, the term itself refers to the removal of unnecessary branches from a tree. This concept is analogous in deep learning. Pruning is a technique that reduces the size of a neural network by eliminating less important or redundant parameters while attempting to maintain the model's performance. These parameters may include weights, neurons, or filters that are integral to a deep learning model. The goal of pruning is to enhance the model's efficiency, reducing its memory footprint, computational requirements, and potentially accelerating inference times. I believe that through pruning, Meta could develop superior wearable devices; I suspect that [Orion](https://about.fb.com/news/2024/09/introducing-orion-our-first-true-augmented-reality-glasses/) is a product of this technology.
+
+When a model is trained, not all neurons or parameters contribute equally to its final performance. Pruning identifies and removes those less critical components, resulting in a smaller and more optimized model. The Llama 3.2 release notes indicate that Meta employed structured pruning in a single-shot manner from the Llama 3.1 8B model. Before delving into structured pruning, let us first discuss unstructured pruning.
+
+### Unstructured Pruning
+
+Unstructured pruning is a straightforward approach that removes individual parameters (weights) without considering the larger structures (such as neurons or filters) to which they belong. It employs minimum thresholds based on the raw weights themselves or their activations to determine whether an individual parameter should be pruned. Consequently, weights that fall below certain thresholds are pruned, as weights with low magnitudes are deemed less important.
+
+For instance, consider a set of weights as follows:
+```python
+weights = [0.002, −0.1, 0.5, −0.0003, 1.2, −0.75]
+```
+
+If the threshold for unstructured pruning is set at 0.01, the pruned weights would be:
+```python
+pruned_weights = [0, −0.1, 0.5, 0, 1.2, −0.75]
+```
+
+It is important to note that pruning is performed based on the absolute value of each weight.
+
+Unstructured pruning offers several advantages in neural network optimization. By targeting individual weights within a neural network, it can eliminate unnecessary weights across the entire network while preserving the overall architecture of the model. Therefore, unstructured pruning can be applied to any deep learning model architecture.
+
+PyTorch provides various methods to perform unstructured pruning:
+
+- [global_unstructured](https://pytorch.org/docs/stable/generated/torch.nn.utils.prune.global_unstructured.html): globally prunes tensors based on a specified condition.
+- [l1_unstructured](https://pytorch.org/docs/stable/generated/torch.nn.utils.prune.l1_unstructured.html): prunes tensors by removing units with the lowest L1-norm.
+- [random_unstructured](https://pytorch.org/docs/stable/generated/torch.nn.utils.prune.random_unstructured.html): prunes tensors by randomly removing a specified number of units.
+
+A study titled [Post-training Deep Neural Network Pruning via Layer-wise Calibration](https://openaccess.thecvf.com/content/ICCV2021W/LPCV/papers/Lazarevich_Post-Training_Deep_Neural_Network_Pruning_via_Layer-Wise_Calibration_ICCVW_2021_paper.pdf) demonstrated that a weight reduction of up to 50% can be achieved with only a marginal accuracy loss of approximately 1.5%. The paper discusses the concept of `L2-Normalized Magnitude`, which involves normalizing weights by the L2 norm of a layer. This methodology has proven particularly effective in scenarios involving batch normalization layers.
+
+<br>
+
+### Structured Pruning
+
+Structured pruning represents a more systematic approach to pruning, wherein entire structures within the network are removed. This method modifies the architecture of the model in a structured manner, maintaining the overall organization of the network.
+
+For example, consider MobileNetV2, which features an intermediate layer comprising 128 feature maps (channels). Through structured pruning, it may be determined that 30 of these channels exhibit consistently low activation values across the dataset, indicating their minimal contribution to the model's overall output. Consequently, these 30 channels can be pruned, resulting in a reduced set of 98 channels. This reduction allows subsequent pointwise convolutions to operate on a smaller input size, thereby enhancing the network's efficiency while maintaining an acceptable level of accuracy.
+
+Examples of structured pruning include:
+
+- **Filter Pruning**: Uses criteria like the L1/L2 norm of filter weights, activation magnitude, or APoZ to decide which filters to remove.
+- **Neuron Pruning**: Focuses on neurons in fully connected layers, using activation-based or gradient-based metrics.
+- **Channel Pruning**: Removes entire feature maps, often guided by batch normalization scaling factors or activation magnitudes.
+- **Layer Pruning**: Removes whole layers based on their contribution to output performance or redundancy in representation.
+
+Structured pruning maintains the integrity of the network's architecture, making it easier for hardware to process the pruned model efficiently. By focusing on the importance of larger structures (filters, neurons, channels), it can effectively reduce model size and computation while preserving performance. The key is to use criteria that capture the significance of each structure, ensuring that the network retains the most crucial components.
 
 
-## Pruning:
+### Why Structured Pruning?
+Structured pruning offers distinct advantages over unstructured pruning, particularly regarding fine-tuning. Following unstructured pruning, the resulting sparse distribution of non-zero weights can complicate subsequent training, as the remaining weights must compensate for the connections that have been removed. This compensation is further complicated by the irregular and sparse nature of the weight distribution, which can hinder effective gradient updates. In contrast, structured pruning maintains a dense and contiguous architecture among the remaining network components, facilitating a more straightforward and often more effective fine-tuning process compared to unstructured pruning.
 
-- Used structured pruning on the Llama 3.1 8B model to create smaller, efficient versions (1B and 3B).
-  - Pruning is a technique used to reduce the size of a neural network by removing less important or redundant parameters (weights, neurons, or filters) while attempting to maintain the model's performance.
-  - The goal of pruning is to make the model more efficient, reducing its memory footprint, computational requirements, and potentially speeding up inference times
-  - When a model is trained, not all the neurons or parameters contribute equally to its final performance. Pruning identifies and removes those less critical components, leading to a smaller and more optimized model.
-- Involves systematically removing parts of the network while adjusting the remaining weights and gradients.
-- Aims to reduce model size while retaining as much of the original model's knowledge and performance as possible.
-
-## Knowledge Distillation:
-- Uses a larger model (Llama 3.1 8B and 70B) as a "teacher" to transfer knowledge to the smaller 1B and 3B models.
-- Incorporated logits from the larger models during the pre-training stage, using these outputs as token-level targets.
-- Applied after pruning to help the smaller models recover performance.
-
-## Post-Training Alignment:
-- Uses a similar post-training process as Llama 3.1, involving multiple rounds of:
-  - **Supervised Fine-Tuning (SFT)**: Further refining model behavior.
-  - **Rejection Sampling (RS)**: Selecting the best-performing model outputs.
-  - **Direct Preference Optimization (DPO)**: Directly optimizing the model based on preferred outputs.
-
-- Scales context length support to 128K tokens while maintaining quality.
-- Uses synthetic data generation, blending high-quality data for various capabilities like summarization, rewriting, instruction following, language reasoning, and tool use.
-
-## Collaboration and Community Support:
-
-- Worked with Qualcomm, Mediatek, and Arm to optimize models for mobile devices.
-- Released model weights based on BFloat16 numerics.
-- Actively exploring quantized variants for faster performance.
+I believe this is why Meta opted for structured pruning over unstructured pruning while developing their lightweight models. In the post-training phase, they conducted several rounds of alignment on top of the pre-trained model, where each round involved supervised fine-tuning (SFT), rejection sampling (RS), and direct preference optimization (DPO). Now that I have a clearer understanding of pruning, I will endeavor to dissect how Llama 3.2 was developed in my next post.
