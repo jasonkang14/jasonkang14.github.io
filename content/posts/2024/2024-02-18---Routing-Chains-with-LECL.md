@@ -8,6 +8,7 @@ category: "LLM"
 tags:
   - "LLM"
   - "Langchain"
+  - "AI"
 
 description: "사용자의 의도를 파악한 LLM Chain 커스텀"
 ---

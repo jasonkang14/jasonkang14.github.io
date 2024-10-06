@@ -7,6 +7,7 @@ slug: "/llm/flutter-gemini-sdk"
 category: "LLM"
 tags:
   - "LLM"
+  - "AI"
 
 description: "GPT랑 비교했을 때 과연?"
 ---

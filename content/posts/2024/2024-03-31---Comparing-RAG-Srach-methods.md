@@ -7,6 +7,7 @@ slug: "/llm/comparing-rag-search-methods"
 category: "LLM"
 tags:
   - "LLM"
+  - "AI"
 
 description: "RAG에서 데이터를 가져오는 다양한 방법 비교"
 ---

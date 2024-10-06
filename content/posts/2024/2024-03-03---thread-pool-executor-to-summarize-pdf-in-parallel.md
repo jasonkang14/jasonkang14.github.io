@@ -7,6 +7,7 @@ slug: "/llm/thread-pool-executor-to-summarize-pdf-in-parallel"
 category: "LLM"
 tags:
   - "LLM"
+  - "AI"
 
 description: "pdf 요약 시간을 단축하기 위한 병렬처리"
 ---

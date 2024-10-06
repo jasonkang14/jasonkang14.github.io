@@ -7,6 +7,7 @@ slug: "/llm/upgrading-ai-english-tutor-with-langchain"
 category: "LLM"
 tags:
   - "LLM"
+  - "AI"
 
 description: "이제 직접 대화 기록을 메모리에서 관리하지 않아도 된다"
 ---

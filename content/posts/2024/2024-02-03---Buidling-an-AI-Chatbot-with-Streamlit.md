@@ -8,6 +8,8 @@ category: "LLM"
 tags:
   - "LLM"
   - "Azure"
+  - "AI"
+
 
 description: "파이썬으로도 화면을 만들 수 있다"
 ---
