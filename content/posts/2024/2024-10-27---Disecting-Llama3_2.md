@@ -82,6 +82,7 @@ Llama3.2 was released last month, featuring medium-sized vision LLMs (11B and 90
 - Llama 3.2 introduces the first highly capable lightweight models (1B and 3B parameters) that can efficiently run on-device.
 - These models are created using two key methods: pruning and distillation.
 
+![llama3.2-small-models](https://scontent-ssn1-1.xx.fbcdn.net/v/t39.2365-6/461209081_511117684875670_45564063096782202_n.png?_nc_cat=101&ccb=1-7&_nc_sid=e280be&_nc_ohc=k8LZfDNSzFkQ7kNvgEp91Xx&_nc_zt=14&_nc_ht=scontent-ssn1-1.xx&_nc_gid=AbgoEMsxicafKeOEw-Tt_zn&oh=00_AYCoBnFDq4oTqjC9lLYnkmzYt9tLK6GWesETnF2oKemBKg&oe=673832DE)
 
 ## Pruning:
 
