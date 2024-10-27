@@ -1,4 +1,130 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Blog by Jason Kang]]></title><description><![CDATA[Blog by Jason Kang]]></description><link>http://github.com/dylang/node-rss</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 06 Oct 2024 13:59:23 GMT</lastBuildDate><item><title><![CDATA[Pruning and Knowledge Distillation]]></title><description><![CDATA[Explore pruning in deep learning, a technique for reducing model size and improving efficiency]]></description><link>https://jasonkang14.github.io/ai/pruning-and-knowledge-distillation</link><guid isPermaLink="false">https://jasonkang14.github.io/ai/pruning-and-knowledge-distillation</guid><pubDate>Sun, 06 Oct 2024 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;Llama 3.2 was released last month, introducing medium-sized vision language models (11B and 90B parameters) alongside lightweight, text-only models (1B and 3B). Notably, Meta has implemented &lt;code class=&quot;language-text&quot;&gt;pruning&lt;/code&gt; and &lt;code class=&quot;language-text&quot;&gt;distillation&lt;/code&gt; techniques on these lightweight models. As I have not previously explored &lt;code class=&quot;language-text&quot;&gt;pruning&lt;/code&gt;, I am eager to investigate its principles and understand the rationale behind Meta’s application of this technique for their lightweight models.&lt;/p&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Blog by Jason Kang]]></title><description><![CDATA[Blog by Jason Kang]]></description><link>http://github.com/dylang/node-rss</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 27 Oct 2024 07:54:53 GMT</lastBuildDate><item><title><![CDATA[Dissecting Llama3.2]]></title><description><![CDATA[A shot at understanding Llama3.2]]></description><link>https://jasonkang14.github.io/llm/dissecting-llama-32</link><guid isPermaLink="false">https://jasonkang14.github.io/llm/dissecting-llama-32</guid><pubDate>Invalid Date</pubDate><content:encoded>&lt;p&gt;Llama3.2 was released last month, featuring medium-sized vision LLMs (11B and 90B) alongside lightweight, text-only models (1B and 3B). Earlier this year, I worked on a mobile application designed to assist users in environments such as refineries and power plants—critical infrastructure where safety regulations and data protection are paramount. Given the often unstable internet connections at these sites, I believed it would be advantageous to explore one of the lightweight text-only models for both performance and security reasons. Consequently, I reviewed the &lt;a href=&quot;https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/&quot; target=&quot;_blank&quot; rel=&quot;nofollow noopener noreferrer&quot;&gt;Llama3.2 release notes&lt;/a&gt; to gain insights into its development.
+&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h1 id=&quot;vision-models&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#vision-models&quot; aria-label=&quot;vision models permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Vision models&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;Llama3.2 models (11B and 90B parameters) are the first in the Llama series to support vision tasks.&lt;/li&gt;
+&lt;li&gt;Requires a new architecture for image reasoning to integrate visual input with existing language capabilities.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;adding-image-input-support&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#adding-image-input-support&quot; aria-label=&quot;adding image input support permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Adding Image Input Support&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Adapters use cross-attention layers to process image representations within the language model.
+&lt;ul&gt;
+&lt;li&gt;Adapters are small neural network modules inserted into the layers of a pre-trained model&lt;/li&gt;
+&lt;li&gt;Their primary purpose is to introduce new capabilities to the model, which is image processing in this case
+&lt;ul&gt;
+&lt;li&gt;Adapters are added between the layers of the pre-trained model&lt;/li&gt;
+&lt;li&gt;They learn task-specific knowledge and adapt the outputs of each layer to the new task, which is image processing&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;In the context of Llama3.2, the adapters connect the image encoder to the language model using cross-attention mechanisms.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Introduces adapter weights to integrate a pre-trained image encoder into the language model.
+&lt;ul&gt;
+&lt;li&gt;Adapter weights refer to the learnable parameters within the adapter modules.&lt;/li&gt;
+&lt;li&gt;These weights are adjusted to align the new input modality with the existing model while maintaining the core model&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;training-pipeline&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#training-pipeline&quot; aria-label=&quot;training pipeline permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Training Pipeline&lt;/h2&gt;
+&lt;h3 id=&quot;pre-training&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#pre-training&quot; aria-label=&quot;pre training permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Pre-Training:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Starts with pre-trained Llama3.1 text models.&lt;/li&gt;
+&lt;li&gt;Image adapters and encoders are added.&lt;/li&gt;
+&lt;li&gt;Pre-training uses a large-scale dataset of noisy image-text pairs.
+&lt;ul&gt;
+&lt;li&gt;&lt;code class=&quot;language-text&quot;&gt;Noisy&lt;/code&gt; image-text pairs refer to datasets where the association between images and their corresponding textual descriptions is imperfect&lt;/li&gt;
+&lt;li&gt;It is not that the images are labeled with wrong descriptions, its more like descriptions with less detail, and the model is supposed to find the detailed descriptions through training&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;during-training&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#during-training&quot; aria-label=&quot;during training permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;During training:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Image encoder parameters are updated.&lt;/li&gt;
+&lt;li&gt;Language model parameters remain unchanged, preserving Llama3.1’s original text-only capabilities.&lt;/li&gt;
+&lt;li&gt;Instead of using the &lt;code class=&quot;language-text&quot;&gt;noisy&lt;/code&gt; image-text pairs used in pre-training, medium-scale high quality in-domain and knowledge-enhanced image-text pair data is used
+&lt;ul&gt;
+&lt;li&gt;This approach helps refine the model’s understanding and performance, similar to how knowledge distillation leverages refined outputs to improve model training.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;fine-tuning&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#fine-tuning&quot; aria-label=&quot;fine tuning permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Fine-Tuning:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Uses a medium-scale dataset of high-quality, in-domain, and knowledge-enhanced image-text pairs.&lt;/li&gt;
+&lt;li&gt;to refine the model’s capabilities for specific tasks and improve its overall performance&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id=&quot;post-training-and-alignment&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#post-training-and-alignment&quot; aria-label=&quot;post training and alignment permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Post-Training and Alignment&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Supervised Fine-Tuning&lt;/strong&gt;: Conducts rounds of fine-tuning using supervised learning.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;a href=&quot;https://arxiv.org/abs/2309.06657&quot; target=&quot;_blank&quot; rel=&quot;nofollow noopener noreferrer&quot;&gt;Rejection Sampling&lt;/a&gt;&lt;/strong&gt;: Applies sampling methods to select the best-performing outputs.
+&lt;ul&gt;
+&lt;li&gt;a technique used to filter or modify model outputs by setting specific criteria that the outputs must meet&lt;/li&gt;
+&lt;li&gt;used when the outputs may not align with desired constraints or quality standards
+&lt;ul&gt;
+&lt;li&gt;I believe this was crucial as the model size is really small. Meta must have set some sort of standards for the smaller models to meet before releasing them&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;this also helps with safety measures&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;a href=&quot;https://arxiv.org/abs/2305.18290&quot; target=&quot;_blank&quot; rel=&quot;nofollow noopener noreferrer&quot;&gt;Direct Preference Optimization(DPO)&lt;/a&gt;&lt;/strong&gt;: Directly optimizes model outputs for better performance.
+&lt;ul&gt;
+&lt;li&gt;this goes well with the rejection sampling, as the purpose of DPO is to align the outputs of the model with the standards that had been previously set&lt;/li&gt;
+&lt;li&gt;uses preference data to adjust the model, reducing potential noise introduced by the reward model.&lt;/li&gt;
+&lt;li&gt;this will be the topic of the next post&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;synthetic-data-generation&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#synthetic-data-generation&quot; aria-label=&quot;synthetic data generation permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Synthetic Data Generation&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Employs Llama3.1 to filter and augment questions and answers based on in-domain images.
+&lt;ul&gt;
+&lt;li&gt;According to the &lt;a href=&quot;https://ai.meta.com/blog/meta-llama-3-1/&quot; target=&quot;_blank&quot; rel=&quot;nofollow noopener noreferrer&quot;&gt;Llama3.1 Release Note&lt;/a&gt;, Llama3.1 405B is supposed to be good at synthetic data generation&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Uses a reward model to rank candidate answers, creating high-quality fine-tuning data.
+&lt;ul&gt;
+&lt;li&gt;this aligns with the principle of Direct Preference Optimization(DPO)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;safety-and-agentic-capabilities&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#safety-and-agentic-capabilities&quot; aria-label=&quot;safety and agentic capabilities permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Safety and Agentic Capabilities&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Includes safety mitigation data to maintain the model’s helpfulness and ensure safe operation.&lt;/li&gt;
+&lt;li&gt;Enables deeper understanding and reasoning with multimodal (image and text) inputs.&lt;/li&gt;
+&lt;li&gt;Advances Llama models toward more sophisticated agentic capabilities.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+&lt;h1 id=&quot;lightweight-models&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#lightweight-models&quot; aria-label=&quot;lightweight models permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Lightweight models&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;Llama 3.2 introduces the first highly capable lightweight models (1B and 3B parameters) that can efficiently run on-device.&lt;/li&gt;
+&lt;li&gt;These models are created using two key methods: pruning and distillation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;pruning&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#pruning&quot; aria-label=&quot;pruning permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Pruning:&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Used structured pruning on the Llama 3.1 8B model to create smaller, efficient versions (1B and 3B).
+&lt;ul&gt;
+&lt;li&gt;Pruning is a technique used to reduce the size of a neural network by removing less important or redundant parameters (weights, neurons, or filters) while attempting to maintain the model’s performance.&lt;/li&gt;
+&lt;li&gt;The goal of pruning is to make the model more efficient, reducing its memory footprint, computational requirements, and potentially speeding up inference times&lt;/li&gt;
+&lt;li&gt;When a model is trained, not all the neurons or parameters contribute equally to its final performance. Pruning identifies and removes those less critical components, leading to a smaller and more optimized model.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Involves systematically removing parts of the network while adjusting the remaining weights and gradients.&lt;/li&gt;
+&lt;li&gt;Aims to reduce model size while retaining as much of the original model’s knowledge and performance as possible.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;knowledge-distillation&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#knowledge-distillation&quot; aria-label=&quot;knowledge distillation permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Knowledge Distillation:&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Uses a larger model (Llama 3.1 8B and 70B) as a “teacher” to transfer knowledge to the smaller 1B and 3B models.&lt;/li&gt;
+&lt;li&gt;Incorporated logits from the larger models during the pre-training stage, using these outputs as token-level targets.&lt;/li&gt;
+&lt;li&gt;Applied after pruning to help the smaller models recover performance.&lt;/li&gt;
+&lt;li&gt;I have written about pruning and knowledge distillation in this &lt;a href=&quot;https://jasonkang14.github.io/ai/pruning-and-knowledge-distillation&quot; target=&quot;_blank&quot; rel=&quot;nofollow noopener noreferrer&quot;&gt;post&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&quot;post-training&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#post-training&quot; aria-label=&quot;post training permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Post-Training&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;Scales context length support to 128K tokens while maintaining quality.&lt;/li&gt;
+&lt;li&gt;Uses synthetic data generation, blending high-quality data for various capabilities like summarization, rewriting, instruction following, language reasoning, and tool use.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The detailed examination of the release notes has heightened my interest in experimenting with Llama3.2. Meta’s emphasis on its enhanced capability to interpret charts and graphs suggests potential improvements in building a more robust Retrieval Augmented Generation (RAG) pipeline, particularly for processing PDF documents. In my upcoming analysis, I plan to explore Direct Preference Optimization (DPO) further and concurrently evaluate Llama3.2’s efficacy in data processing.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[Pruning and Knowledge Distillation]]></title><description><![CDATA[Explore pruning in deep learning, a technique for reducing model size and improving efficiency]]></description><link>https://jasonkang14.github.io/ai/pruning-and-knowledge-distillation</link><guid isPermaLink="false">https://jasonkang14.github.io/ai/pruning-and-knowledge-distillation</guid><pubDate>Sun, 06 Oct 2024 00:00:00 GMT</pubDate><content:encoded>&lt;p&gt;Llama 3.2 was released last month, introducing medium-sized vision language models (11B and 90B parameters) alongside lightweight, text-only models (1B and 3B). Notably, Meta has implemented &lt;code class=&quot;language-text&quot;&gt;pruning&lt;/code&gt; and &lt;code class=&quot;language-text&quot;&gt;distillation&lt;/code&gt; techniques on these lightweight models. As I have not previously explored &lt;code class=&quot;language-text&quot;&gt;pruning&lt;/code&gt;, I am eager to investigate its principles and understand the rationale behind Meta’s application of this technique for their lightweight models.&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;https://scontent-ssn1-1.xx.fbcdn.net/v/t39.2365-6/461209081_511117684875670_45564063096782202_n.png?_nc_cat=101&amp;#x26;ccb=1-7&amp;#x26;_nc_sid=e280be&amp;#x26;_nc_ohc=4jldpTHNj_sQ7kNvgGQBwiI&amp;#x26;_nc_ht=scontent-ssn1-1.xx&amp;#x26;_nc_gid=AJpV1VOUAVjGT78cKoWunBl&amp;#x26;oh=00_AYC4jxU5SJhXt6zCW5IMykHerSqGnKYgdsR-8SAUaiUHUA&amp;#x26;oe=671C835E&quot; alt=&quot;Llama3.2 Lightweight Model Pruning &amp;#x26; Distillation&quot;&gt;&lt;/p&gt;
 &lt;h1 id=&quot;knowledge-distillation&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#knowledge-distillation&quot; aria-label=&quot;knowledge distillation permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Knowledge Distillation&lt;/h1&gt;
 &lt;p&gt;I possess extensive hands-on experience with knowledge distillation from my tenure at a medical AI startup specializing in Speech-to-Text (STT) technology for radiology. In this role, I contributed to the development of a lightweight model utilizing knowledge distillation techniques, optimizing it for deployment on local computers with limited computational resources.&lt;/p&gt;
