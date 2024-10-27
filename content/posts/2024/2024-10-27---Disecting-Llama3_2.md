@@ -1,6 +1,6 @@
 ---
 title: "Dissecting Llama3.2"
-date: "2024-10-27gT20:35:37.121Z"
+date: "2024-10-27T20:35:37.121Z"
 template: "post"
 draft: false
 slug: "/llm/dissecting-llama-32"
