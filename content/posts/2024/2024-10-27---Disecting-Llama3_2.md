@@ -1,9 +1,9 @@
 ---
-title: "Disecting Llama3.2"
-date: "2024-10-051T20:35:37.121Z"
+title: "Dissecting Llama3.2"
+date: "2024-10-271T20:35:37.121Z"
 template: "post"
-draft: true
-slug: "/llm/disceeting-llama-32"
+draft: false
+slug: "/llm/dissecting-llama-32"
 category: "LLM"
 tags:
   - "LLM"
@@ -23,9 +23,9 @@ Llama3.2 was released last month, featuring medium-sized vision LLMs (11B and 90
 
 - Adapters use cross-attention layers to process image representations within the language model.
   - Adapters are small neural network modules inserted into the layers of a pre-trained model 
-  - Their primary purpose is to introduce new capabitlies to the model, which is image processing in this case
+  - Their primary purpose is to introduce new capabilities to the model, which is image processing in this case
     - Adapters are added between the layers of the pre-trained model
-    - They learn task-specific knowldge and dapt the outputs of each layer to the new task, which is image processing 
+    - They learn task-specific knowledge and adapt the outputs of each layer to the new task, which is image processing 
   - In the context of Llama3.2, the adapters connect the image encoder to the language model using cross-attention mechanisms. 
 - Introduces adapter weights to integrate a pre-trained image encoder into the language model.
   - Adapter weights refer to the learnable parameters within the adapter modules.
@@ -42,6 +42,8 @@ Llama3.2 was released last month, featuring medium-sized vision LLMs (11B and 90
 ### During training:
   - Image encoder parameters are updated.
   - Language model parameters remain unchanged, preserving Llama3.1's original text-only capabilities.
+  - Instead of using the `noisy` image-text pairs used in pre-training, medium-scale high quality in-domain and knowledge-enhanced image-text pair data is used
+    - This approach helps refine the model's understanding and performance, similar to how knowledge distillation leverages refined outputs to improve model training.
 
 ### Fine-Tuning:
   - Uses a medium-scale dataset of high-quality, in-domain, and knowledge-enhanced image-text pairs.
@@ -49,14 +51,22 @@ Llama3.2 was released last month, featuring medium-sized vision LLMs (11B and 90
 
 ### Post-Training and Alignment
 - **Supervised Fine-Tuning**: Conducts rounds of fine-tuning using supervised learning.
-- **Rejection Sampling**: Applies sampling methods to select the best-performing outputs.
-- **Preference Optimization**: Directly optimizes model outputs for better performance.
-
+- **[Rejection Sampling](https://arxiv.org/abs/2309.06657)**: Applies sampling methods to select the best-performing outputs.
+  - a technique used to filter or modify model outputs by setting specific criteria that the outputs must meet
+  - used when the outputs may not align with desired constraints or quality standards 
+    - I believe this was crucial as the model size is really small. Meta must have set some sort of standards for the smaller models to meet before releasing them
+  - this also helps with safety measures
+  
+- **[Direct Preference Optimization(DPO)](https://arxiv.org/abs/2305.18290)**: Directly optimizes model outputs for better performance.
+  - this goes well with the rejection sampling, as the purpose of DPO is to align the outputs of the model with the standards that had been previously set
+  - uses preference data to adjust the model, reducing potential noise introduced by the reward model.
+  - this will be the topic of the next post
 
 ## Synthetic Data Generation
 - Employs Llama3.1 to filter and augment questions and answers based on in-domain images.
   - According to the [Llama3.1 Release Note](https://ai.meta.com/blog/meta-llama-3-1/), Llama3.1 405B is supposed to be good at synthetic data generation
 - Uses a reward model to rank candidate answers, creating high-quality fine-tuning data.
+  - this aligns with the principle of Direct Preference Optimization(DPO)
 
 
 ## Safety and Agentic Capabilities
@@ -82,22 +92,16 @@ Llama3.2 was released last month, featuring medium-sized vision LLMs (11B and 90
 - Involves systematically removing parts of the network while adjusting the remaining weights and gradients.
 - Aims to reduce model size while retaining as much of the original model's knowledge and performance as possible.
 
+
 ## Knowledge Distillation:
 - Uses a larger model (Llama 3.1 8B and 70B) as a "teacher" to transfer knowledge to the smaller 1B and 3B models.
 - Incorporated logits from the larger models during the pre-training stage, using these outputs as token-level targets.
 - Applied after pruning to help the smaller models recover performance.
+- I have written about pruning and knowledge distillation in this [post](https://jasonkang14.github.io/ai/pruning-and-knowledge-distillation)
 
-## Post-Training Alignment:
-- Uses a similar post-training process as Llama 3.1, involving multiple rounds of:
-  - **Supervised Fine-Tuning (SFT)**: Further refining model behavior.
-  - **Rejection Sampling (RS)**: Selecting the best-performing model outputs.
-  - **Direct Preference Optimization (DPO)**: Directly optimizing the model based on preferred outputs.
 
+# Post-Training
 - Scales context length support to 128K tokens while maintaining quality.
 - Uses synthetic data generation, blending high-quality data for various capabilities like summarization, rewriting, instruction following, language reasoning, and tool use.
 
-## Collaboration and Community Support:
-
-- Worked with Qualcomm, Mediatek, and Arm to optimize models for mobile devices.
-- Released model weights based on BFloat16 numerics.
-- Actively exploring quantized variants for faster performance.
+The detailed examination of the release notes has heightened my interest in experimenting with Llama3.2. Meta's emphasis on its enhanced capability to interpret charts and graphs suggests potential improvements in building a more robust Retrieval Augmented Generation (RAG) pipeline, particularly for processing PDF documents. In my upcoming analysis, I plan to explore Direct Preference Optimization (DPO) further and concurrently evaluate Llama3.2's efficacy in data processing.
