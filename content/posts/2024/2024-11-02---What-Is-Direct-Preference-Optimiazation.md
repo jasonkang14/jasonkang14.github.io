@@ -74,6 +74,8 @@ DPO leverages log-probability ratios from the model itself. For a given pair of 
   - DPO matched or outperformed PPO’s summarization quality in terms of win rate against human-preferred summaries, even when using GPT-4 to evaluate.
   - DPO maintained a high win rate across sampling temperatures, showing robustness that PPO lacked at higher temperatures.
 
+![DPO works well with semtiment generation and summarization](https://i.imgur.com/aIoLzA5.png)
+
 ### Single-Turn Dialogue
 - **Goal**: To produce helpful and engaging responses in single-turn dialogues, using the Anthropic “Helpful and Harmless” dataset.
 - **Setup**:
