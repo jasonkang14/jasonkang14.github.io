@@ -161,4 +161,4 @@ The RAGAS package also includes metrics for evaluating multimodal systems, such 
 
 By utilizing these metrics, developers and researchers can comprehensively evaluate the performance of their RAG systems, ensuring that they provide accurate, relevant, and context-appropriate responses to user queries.
 
-In this post, I've discussed the importance of evaluating Large Language Models (LLMs) and outlined the key aspects to assess in order to ensure the performance and quality of an LLM application. In the next post, I will delve into the timing and methods for evaluating these applications.
+In this post, I've discussed the importance of evaluating Large Language Models (LLMs) and outlined the key aspects to assess in order to ensure the performance and quality of an LLM application. 
