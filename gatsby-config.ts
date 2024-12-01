@@ -120,6 +120,14 @@ export default {
       options: {
         plugins: [
           {
+            resolve: "gatsby-remark-katex",
+            options: {
+              strict: "ignore",
+              remarkPlugins: [ require('remark-math')],
+              rehypePlugins: [require('rehype-katex')],
+            }
+          },
+          {
             resolve: "gatsby-remark-images",
             options: {
               maxWidth: 960,

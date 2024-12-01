@@ -11,6 +11,7 @@ import { Meta } from "./Meta";
 import { Tags } from "./Tags";
 
 import * as styles from "./Post.module.scss";
+import 'katex/dist/katex.min.css';
 
 interface Props {
   post: Node;
