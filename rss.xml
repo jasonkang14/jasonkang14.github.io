@@ -1,6 +1,331 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Blog by Jason Kang]]></title><description><![CDATA[Blog by Jason Kang]]></description><link>http://github.com/dylang/node-rss</link><generator>GatsbyJS</generator><lastBuildDate>Sat, 30 Nov 2024 13:48:39 GMT</lastBuildDate><item><title><![CDATA[What Is Attention?]]></title><description><![CDATA[An exploration of the concept of Attention in LLMs, discussing its significance and impact on model performance and understanding.]]></description><link>https://jasonkang14.github.io/llm/what-is-attention</link><guid isPermaLink="false">https://jasonkang14.github.io/llm/what-is-attention</guid><pubDate>Sat, 30 Nov 2024 20:35:37 GMT</pubDate><content:encoded>&lt;p&gt;In Korea, there is a tradition of “study” groups where engineers from various companies or backgrounds gather to explore specific engineering concepts. Participants typically select a book or an online curriculum to follow, and each week, one member is responsible for studying a chapter in depth and presenting the ideas to the group. I recently joined a study group focused on understanding how Large Language Models (LLMs) function. Last week, I was tasked with presenting the concepts of Attention and Transformers within LLMs. While I am familiar with these concepts, explaining them to others proved to be a distinct challenge compared to understanding them on my own. Here is my perspective on explaining what Attention is.&lt;/p&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Blog by Jason Kang]]></title><description><![CDATA[Blog by Jason Kang]]></description><link>http://github.com/dylang/node-rss</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 01 Dec 2024 14:16:38 GMT</lastBuildDate><item><title><![CDATA[How Is Attention Calculated?]]></title><description><![CDATA[A detailed exploration of how attentions are calculated in the Transformer model, as introduced in 'Attention Is All You Need.']]></description><link>https://jasonkang14.github.io/llm/how-is-attention-score-calculated</link><guid isPermaLink="false">https://jasonkang14.github.io/llm/how-is-attention-score-calculated</guid><pubDate>Sun, 01 Dec 2024 20:35:37 GMT</pubDate><content:encoded>&lt;p&gt;In Korea, there is a tradition of “study” groups where engineers from various companies or backgrounds gather to explore specific engineering concepts. Participants typically select a book or an online curriculum to follow, and each week, one member is responsible for studying a chapter in depth and presenting the ideas to the group. I recently joined a study group focused on understanding how Large Language Models (LLMs) function. Last week, I was tasked with presenting the concepts of Attention and Transformers within LLMs. While I am familiar with these concepts, explaining them to others proved to be a distinct challenge compared to understanding them on my own. Here is my perspective on explaining how the Attension Score is calculated&lt;/p&gt;
+&lt;h1 id=&quot;attention-score란&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#attention-score%EB%9E%80&quot; aria-label=&quot;attention score란 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Attention Score란?&lt;/h1&gt;
+&lt;p&gt;Attention Score는 모델이 입력 데이터의 특정 부분에 더 집중하도록 가중치를 부여하는 방식이다. Attention Score는 주어진 Query와 Key의 관계를 수치화하여 계산되며, 이 값이 클수록 해당 Key가 Query와 더 밀접한 연관성을 가진다고 본다.&lt;/p&gt;
+&lt;h2 id=&quot;queryq-keyk-valuev-도출-과정&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#queryq-keyk-valuev-%EB%8F%84%EC%B6%9C-%EA%B3%BC%EC%A0%95&quot; aria-label=&quot;queryq keyk valuev 도출 과정 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Query(Q), Key(K), Value(V) 도출 과정&lt;/h2&gt;
+&lt;p&gt;Attention 메커니즘에서 Q(Query), K(Key), V(Value)는 입력 데이터에서 선형 변환(Linear Transformation)을 통해 얻어지는 벡터이다. Transformer 모델에서 입력은 보통 단어 임베딩(embedding)이나 그 변형된 형태로 표현되며, 이 벡터들이 $Q$, $K$, $V$로 매핑된다.&lt;/p&gt;
+&lt;p&gt;예를들면 “어제 밤에 배가 고파서 치킨을 시켜서 먹었다”라는 문장에서, “배”라는 단어가&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;과일 배&lt;/li&gt;
+&lt;li&gt;사람의 배&lt;/li&gt;
+&lt;li&gt;이동수단 배&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;중에 어떤 것을 뜻하는지 결정하려면 &lt;strong&gt;Attention Score&lt;/strong&gt;를 활용하여 문맥 정보를 기반으로 “배”와 관련된 단어들 간의 관계를 학습할 수 있다.&lt;/p&gt;
+&lt;br&gt;
+&lt;h2 id=&quot;1-입력-데이터-준비&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#1-%EC%9E%85%EB%A0%A5-%EB%8D%B0%EC%9D%B4%ED%84%B0-%EC%A4%80%EB%B9%84&quot; aria-label=&quot;1 입력 데이터 준비 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;&lt;strong&gt;1. 입력 데이터 준비&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;문장을 단어 단위로 분리하고 각 단어를 임베딩 벡터로 변환한다.&lt;br&gt;
+예를 들어, 각 단어가 4차원 벡터로 표현된다고 하자:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;“어제” → [0.1, 0.2, 0.1, 0.3]&lt;/li&gt;
+&lt;li&gt;“밤에” → [0.0, 0.1, 0.2, 0.4]&lt;/li&gt;
+&lt;li&gt;“배” → [0.5, 0.3, 0.2, 0.1]&lt;/li&gt;
+&lt;li&gt;“가” → [0.1, 0.1, 0.1, 0.2]&lt;/li&gt;
+&lt;li&gt;“고파서” → [0.2, 0.3, 0.1, 0.0]&lt;/li&gt;
+&lt;li&gt;“치킨을” → [0.4, 0.0, 0.3, 0.2]&lt;/li&gt;
+&lt;li&gt;“시켜서” → [0.3, 0.1, 0.4, 0.1]&lt;/li&gt;
+&lt;li&gt;“먹었다” → [0.5, 0.2, 0.0, 0.1]&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;입력 행렬 $\mathbf{X}$ 는 다음과 같다:
+$$
+\mathbf{X} =
+\begin{bmatrix}
+0.1 &amp;#x26; 0.2 &amp;#x26; 0.1 &amp;#x26; 0.3 \  % 어제
+0.0 &amp;#x26; 0.1 &amp;#x26; 0.2 &amp;#x26; 0.4 \  % 밤에
+0.5 &amp;#x26; 0.3 &amp;#x26; 0.2 &amp;#x26; 0.1 \  % 배
+0.1 &amp;#x26; 0.1 &amp;#x26; 0.1 &amp;#x26; 0.2 \  % 가
+0.2 &amp;#x26; 0.3 &amp;#x26; 0.1 &amp;#x26; 0.0 \  % 고파서
+0.4 &amp;#x26; 0.0 &amp;#x26; 0.3 &amp;#x26; 0.2 \  % 치킨을
+0.3 &amp;#x26; 0.1 &amp;#x26; 0.4 &amp;#x26; 0.1 \  % 시켜서
+0.5 &amp;#x26; 0.2 &amp;#x26; 0.0 &amp;#x26; 0.1     % 먹었다
+\end{bmatrix}
+$$&lt;/p&gt;
+&lt;br&gt;
+&lt;h2 id=&quot;2-q-k-계산&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#2-q-k-%EA%B3%84%EC%82%B0&quot; aria-label=&quot;2 q k 계산 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;&lt;strong&gt;2. Q, K 계산&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;$\mathbf{X}$를 Query(Q), Key(K) 로 변환하기 위해 학습 가능한 가중치 행렬(Weight Matrix) $W_Q, W_K$를 사용한다.&lt;/p&gt;
+&lt;p&gt;편의상 Weight Matrix는 아래와 같이 정의한다.&lt;/p&gt;
+&lt;p&gt;$$
+\mathbf{W}_Q =
+\begin{bmatrix}
+0.5 &amp;#x26; 0.1 &amp;#x26; 0.2 &amp;#x26; 0.2 \
+0.2 &amp;#x26; 0.3 &amp;#x26; 0.1 &amp;#x26; 0.4 \
+0.1 &amp;#x26; 0.5 &amp;#x26; 0.3 &amp;#x26; 0.1 \
+0.3 &amp;#x26; 0.1 &amp;#x26; 0.4 &amp;#x26; 0.2
+\end{bmatrix}, \quad
+\mathbf{W}_K =
+\begin{bmatrix}
+0.4 &amp;#x26; 0.2 &amp;#x26; 0.1 &amp;#x26; 0.3 \
+0.1 &amp;#x26; 0.3 &amp;#x26; 0.2 &amp;#x26; 0.5 \
+0.2 &amp;#x26; 0.4 &amp;#x26; 0.5 &amp;#x26; 0.1 \
+0.3 &amp;#x26; 0.2 &amp;#x26; 0.1 &amp;#x26; 0.4
+\end{bmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;각 행렬 곱 연산을 통해 Q, K를 얻는다.&lt;/p&gt;
+&lt;p&gt;$$
+\mathbf{Q} = \mathbf{X} \mathbf{W}_Q, \quad \mathbf{K} = \mathbf{X} \mathbf{W}_K
+$$&lt;/p&gt;
+&lt;br&gt;
+&lt;h1 id=&quot;mathbfq-beginbmatrix01--02--01--03-00--01--02--04-05--03--02--01-01--01--01--02-02--03--01--00-04--00--03--02-03--01--04--01-05--02--00--01endbmatrixbeginbmatrix05--01--02--02-02--03--01--04-01--05--03--01-03--01--04--02endbmatrix&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#mathbfq-beginbmatrix01--02--01--03-00--01--02--04-05--03--02--01-01--01--01--02-02--03--01--00-04--00--03--02-03--01--04--01-05--02--00--01endbmatrixbeginbmatrix05--01--02--02-02--03--01--04-01--05--03--01-03--01--04--02endbmatrix&quot; aria-label=&quot;mathbfq beginbmatrix01  02  01  03 00  01  02  04 05  03  02  01 01  01  01  02 02  03  01  00 04  00  03  02 03  01  04  01 05  02  00  01endbmatrixbeginbmatrix05  01  02  02 02  03  01  04 01  05  03  01 03  01  04  02endbmatrix permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;$$
+\mathbf{Q} =
+\begin{bmatrix}
+0.1 &amp;#x26; 0.2 &amp;#x26; 0.1 &amp;#x26; 0.3 \
+0.0 &amp;#x26; 0.1 &amp;#x26; 0.2 &amp;#x26; 0.4 \
+0.5 &amp;#x26; 0.3 &amp;#x26; 0.2 &amp;#x26; 0.1 \
+0.1 &amp;#x26; 0.1 &amp;#x26; 0.1 &amp;#x26; 0.2 \
+0.2 &amp;#x26; 0.3 &amp;#x26; 0.1 &amp;#x26; 0.0 \
+0.4 &amp;#x26; 0.0 &amp;#x26; 0.3 &amp;#x26; 0.2 \
+0.3 &amp;#x26; 0.1 &amp;#x26; 0.4 &amp;#x26; 0.1 \
+0.5 &amp;#x26; 0.2 &amp;#x26; 0.0 &amp;#x26; 0.1
+\end{bmatrix}
+\begin{bmatrix}
+0.5 &amp;#x26; 0.1 &amp;#x26; 0.2 &amp;#x26; 0.2 \
+0.2 &amp;#x26; 0.3 &amp;#x26; 0.1 &amp;#x26; 0.4 \
+0.1 &amp;#x26; 0.5 &amp;#x26; 0.3 &amp;#x26; 0.1 \
+0.3 &amp;#x26; 0.1 &amp;#x26; 0.4 &amp;#x26; 0.2
+\end{bmatrix}&lt;/h1&gt;
+&lt;p&gt;\begin{bmatrix}
+0.17 &amp;#x26; 0.24 &amp;#x26; 0.17 &amp;#x26; 0.22 \
+0.17 &amp;#x26; 0.28 &amp;#x26; 0.23 &amp;#x26; 0.20 \
+0.36 &amp;#x26; 0.27 &amp;#x26; 0.26 &amp;#x26; 0.25 \
+0.11 &amp;#x26; 0.15 &amp;#x26; 0.13 &amp;#x26; 0.14 \
+0.16 &amp;#x26; 0.18 &amp;#x26; 0.12 &amp;#x26; 0.16 \
+0.28 &amp;#x26; 0.16 &amp;#x26; 0.26 &amp;#x26; 0.24 \
+0.31 &amp;#x26; 0.18 &amp;#x26; 0.27 &amp;#x26; 0.25 \
+0.32 &amp;#x26; 0.19 &amp;#x26; 0.20 &amp;#x26; 0.22
+\end{bmatrix}
+$$&lt;/p&gt;
+&lt;br&gt;
+&lt;h1 id=&quot;mathbfk-beginbmatrix01--02--01--03-00--01--02--04-05--03--02--01-01--01--01--02-02--03--01--00-04--00--03--02-03--01--04--01-05--02--00--01endbmatrixbeginbmatrix04--02--01--03-01--03--02--05-02--04--05--01-03--02--01--04endbmatrix&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#mathbfk-beginbmatrix01--02--01--03-00--01--02--04-05--03--02--01-01--01--01--02-02--03--01--00-04--00--03--02-03--01--04--01-05--02--00--01endbmatrixbeginbmatrix04--02--01--03-01--03--02--05-02--04--05--01-03--02--01--04endbmatrix&quot; aria-label=&quot;mathbfk beginbmatrix01  02  01  03 00  01  02  04 05  03  02  01 01  01  01  02 02  03  01  00 04  00  03  02 03  01  04  01 05  02  00  01endbmatrixbeginbmatrix04  02  01  03 01  03  02  05 02  04  05  01 03  02  01  04endbmatrix permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;$$
+\mathbf{K} =
+\begin{bmatrix}
+0.1 &amp;#x26; 0.2 &amp;#x26; 0.1 &amp;#x26; 0.3 \
+0.0 &amp;#x26; 0.1 &amp;#x26; 0.2 &amp;#x26; 0.4 \
+0.5 &amp;#x26; 0.3 &amp;#x26; 0.2 &amp;#x26; 0.1 \
+0.1 &amp;#x26; 0.1 &amp;#x26; 0.1 &amp;#x26; 0.2 \
+0.2 &amp;#x26; 0.3 &amp;#x26; 0.1 &amp;#x26; 0.0 \
+0.4 &amp;#x26; 0.0 &amp;#x26; 0.3 &amp;#x26; 0.2 \
+0.3 &amp;#x26; 0.1 &amp;#x26; 0.4 &amp;#x26; 0.1 \
+0.5 &amp;#x26; 0.2 &amp;#x26; 0.0 &amp;#x26; 0.1
+\end{bmatrix}
+\begin{bmatrix}
+0.4 &amp;#x26; 0.2 &amp;#x26; 0.1 &amp;#x26; 0.3 \
+0.1 &amp;#x26; 0.3 &amp;#x26; 0.2 &amp;#x26; 0.5 \
+0.2 &amp;#x26; 0.4 &amp;#x26; 0.5 &amp;#x26; 0.1 \
+0.3 &amp;#x26; 0.2 &amp;#x26; 0.1 &amp;#x26; 0.4
+\end{bmatrix}&lt;/h1&gt;
+&lt;p&gt;\begin{bmatrix}
+0.15 &amp;#x26; 0.22 &amp;#x26; 0.20 &amp;#x26; 0.28 \
+0.18 &amp;#x26; 0.30 &amp;#x26; 0.28 &amp;#x26; 0.32 \
+0.33 &amp;#x26; 0.31 &amp;#x26; 0.27 &amp;#x26; 0.30 \
+0.10 &amp;#x26; 0.15 &amp;#x26; 0.13 &amp;#x26; 0.18 \
+0.14 &amp;#x26; 0.20 &amp;#x26; 0.16 &amp;#x26; 0.19 \
+0.28 &amp;#x26; 0.18 &amp;#x26; 0.23 &amp;#x26; 0.26 \
+0.27 &amp;#x26; 0.24 &amp;#x26; 0.25 &amp;#x26; 0.27 \
+0.26 &amp;#x26; 0.24 &amp;#x26; 0.20 &amp;#x26; 0.24
+\end{bmatrix}
+$$&lt;/p&gt;
+&lt;br&gt;
+&lt;h2 id=&quot;3-attention-score-계산&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#3-attention-score-%EA%B3%84%EC%82%B0&quot; aria-label=&quot;3 attention score 계산 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;&lt;strong&gt;3. Attention Score 계산&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;“배”의 의미를 결정하기 위해, “배”의 Query $(Q_{\text{배}})$와 모든 단어의 Key $(K_{\text{모든 단어}})$를 비교하여 &lt;code class=&quot;language-text&quot;&gt;Attention Score&lt;/code&gt;를 계산한다. Attention에서 &lt;strong&gt;Query(Q)&lt;/strong&gt; 는 단어가 “묻고” 있거나 찾고 있는 것을 나타내고, &lt;strong&gt;Key(K)&lt;/strong&gt; 는 각 단어가 제공하는 특징이나 문맥을 나타낸다. 따라서 아래와 같이 표현할 수 있다&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Query $(Q_\text{배})$: “문맥적으로 나와 관련된 단어를 찾아보자.”&lt;/li&gt;
+&lt;li&gt;Key $(K_\text{밤에})$: “나는 시간적 정보를 제공하는 단어야.”&lt;/li&gt;
+&lt;li&gt;Key $(K_\text{치킨})$: “나는 음식과 관련된 단어야.”&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;code class=&quot;language-text&quot;&gt;Attention Score&lt;/code&gt;는 아래 공식을 통해 계산된다.&lt;/p&gt;
+&lt;p&gt;$$
+\text{Attention}(Q, K, V) = \text{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right)V
+$$&lt;/p&gt;
+&lt;p&gt;$d_k = 4$ 이기 때문에 $\sqrt{d_k} = 2$가 된다.&lt;/p&gt;
+&lt;p&gt;먼저 $\mathbf{Q} \mathbf{K}^T$를 계산하면:&lt;/p&gt;
+&lt;p&gt;$$
+\mathbf{Q} \mathbf{K}^T =
+\begin{bmatrix}
+0.17 &amp;#x26; 0.24 &amp;#x26; 0.17 &amp;#x26; 0.22 \
+0.17 &amp;#x26; 0.28 &amp;#x26; 0.23 &amp;#x26; 0.20 \
+0.36 &amp;#x26; 0.27 &amp;#x26; 0.26 &amp;#x26; 0.25 \
+0.11 &amp;#x26; 0.15 &amp;#x26; 0.13 &amp;#x26; 0.14 \
+0.16 &amp;#x26; 0.18 &amp;#x26; 0.12 &amp;#x26; 0.16 \
+0.28 &amp;#x26; 0.16 &amp;#x26; 0.26 &amp;#x26; 0.24 \
+0.31 &amp;#x26; 0.18 &amp;#x26; 0.27 &amp;#x26; 0.25 \
+0.32 &amp;#x26; 0.19 &amp;#x26; 0.20 &amp;#x26; 0.22
+\end{bmatrix}
+\begin{bmatrix}
+0.15 &amp;#x26; 0.18 &amp;#x26; 0.33 &amp;#x26; 0.10 &amp;#x26; 0.14 &amp;#x26; 0.28 &amp;#x26; 0.27 &amp;#x26; 0.26 \
+0.22 &amp;#x26; 0.30 &amp;#x26; 0.31 &amp;#x26; 0.15 &amp;#x26; 0.20 &amp;#x26; 0.18 &amp;#x26; 0.24 &amp;#x26; 0.24 \
+0.20 &amp;#x26; 0.28 &amp;#x26; 0.27 &amp;#x26; 0.13 &amp;#x26; 0.16 &amp;#x26; 0.23 &amp;#x26; 0.25 &amp;#x26; 0.20 \
+0.28 &amp;#x26; 0.32 &amp;#x26; 0.30 &amp;#x26; 0.18 &amp;#x26; 0.19 &amp;#x26; 0.26 &amp;#x26; 0.27 &amp;#x26; 0.24
+\end{bmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;$$
+\mathbf{Q} \mathbf{K}^T =
+\begin{bmatrix}
+0.156 &amp;#x26; 0.212 &amp;#x26; 0.199 &amp;#x26; 0.119 &amp;#x26; 0.158 &amp;#x26; 0.211 &amp;#x26; 0.229 &amp;#x26; 0.217 \
+0.170 &amp;#x26; 0.236 &amp;#x26; 0.220 &amp;#x26; 0.131 &amp;#x26; 0.175 &amp;#x26; 0.233 &amp;#x26; 0.248 &amp;#x26; 0.230 \
+0.274 &amp;#x26; 0.374 &amp;#x26; 0.342 &amp;#x26; 0.204 &amp;#x26; 0.266 &amp;#x26; 0.352 &amp;#x26; 0.375 &amp;#x26; 0.340 \
+0.114 &amp;#x26; 0.154 &amp;#x26; 0.143 &amp;#x26; 0.085 &amp;#x26; 0.110 &amp;#x26; 0.147 &amp;#x26; 0.158 &amp;#x26; 0.144 \
+0.131 &amp;#x26; 0.174 &amp;#x26; 0.159 &amp;#x26; 0.095 &amp;#x26; 0.126 &amp;#x26; 0.166 &amp;#x26; 0.176 &amp;#x26; 0.159 \
+0.239 &amp;#x26; 0.315 &amp;#x26; 0.288 &amp;#x26; 0.173 &amp;#x26; 0.227 &amp;#x26; 0.302 &amp;#x26; 0.321 &amp;#x26; 0.293 \
+0.264 &amp;#x26; 0.346 &amp;#x26; 0.316 &amp;#x26; 0.189 &amp;#x26; 0.249 &amp;#x26; 0.328 &amp;#x26; 0.349 &amp;#x26; 0.319 \
+0.258 &amp;#x26; 0.339 &amp;#x26; 0.311 &amp;#x26; 0.186 &amp;#x26; 0.243 &amp;#x26; 0.320 &amp;#x26; 0.340 &amp;#x26; 0.313
+\end{bmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;스케일링을 위해 $\sqrt{d_k} = 2$로 나누면&lt;/p&gt;
+&lt;p&gt;$$
+\mathbf{QK^T}_{\text{scaled}} =
+\begin{bmatrix}
+0.078 &amp;#x26; 0.106 &amp;#x26; 0.100 &amp;#x26; 0.060 &amp;#x26; 0.079 &amp;#x26; 0.106 &amp;#x26; 0.115 &amp;#x26; 0.109 \
+0.085 &amp;#x26; 0.118 &amp;#x26; 0.110 &amp;#x26; 0.065 &amp;#x26; 0.087 &amp;#x26; 0.117 &amp;#x26; 0.124 &amp;#x26; 0.115 \
+0.137 &amp;#x26; 0.187 &amp;#x26; 0.171 &amp;#x26; 0.102 &amp;#x26; 0.133 &amp;#x26; 0.176 &amp;#x26; 0.188 &amp;#x26; 0.170 \
+0.057 &amp;#x26; 0.077 &amp;#x26; 0.071 &amp;#x26; 0.043 &amp;#x26; 0.055 &amp;#x26; 0.074 &amp;#x26; 0.079 &amp;#x26; 0.072 \
+0.065 &amp;#x26; 0.087 &amp;#x26; 0.080 &amp;#x26; 0.048 &amp;#x26; 0.063 &amp;#x26; 0.083 &amp;#x26; 0.088 &amp;#x26; 0.080 \
+0.120 &amp;#x26; 0.158 &amp;#x26; 0.144 &amp;#x26; 0.087 &amp;#x26; 0.114 &amp;#x26; 0.151 &amp;#x26; 0.160 &amp;#x26; 0.146 \
+0.132 &amp;#x26; 0.173 &amp;#x26; 0.158 &amp;#x26; 0.095 &amp;#x26; 0.125 &amp;#x26; 0.164 &amp;#x26; 0.175 &amp;#x26; 0.160 \
+0.129 &amp;#x26; 0.170 &amp;#x26; 0.156 &amp;#x26; 0.093 &amp;#x26; 0.121 &amp;#x26; 0.160 &amp;#x26; 0.170 &amp;#x26; 0.157
+\end{bmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;위에 scaling된 Matrix를 Attention Score라고 부른다.
+이제 &lt;code class=&quot;language-text&quot;&gt;softmax&lt;/code&gt;를 적용한다. 우리는 “배”라는 단어가 무엇을 뜻하는지에 관심이 있기 때문에 3번 row를 대상으로 대표 계산을 진행하고 &lt;code class=&quot;language-text&quot;&gt;softmax&lt;/code&gt;를 적용한다.&lt;/p&gt;
+&lt;p&gt;$$
+\text{Softmax}(\text{Row 3}) = \frac{\exp(x_i)}{\sum_{j}\exp(x_j)}, \quad x_i \in \text{Row 3}
+$$&lt;/p&gt;
+&lt;p&gt;$$
+\exp(\text{Row 3}) = \begin{bmatrix}
+1.147 &amp;#x26; 1.205 &amp;#x26; 1.187 &amp;#x26; 1.108 &amp;#x26; 1.143 &amp;#x26; 1.193 &amp;#x26; 1.207 &amp;#x26; 1.186
+\end{bmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;각 항목의 합을 구하면&lt;/p&gt;
+&lt;p&gt;$$
+\text{sum} = 1.147 + 1.205 + 1.187 + 1.108 + 1.143 + 1.193 + 1.207 + 1.186 = 9.376
+$$&lt;/p&gt;
+&lt;p&gt;sum을 활용해 normalization을 적용하면,&lt;/p&gt;
+&lt;p&gt;$$
+\text{Softmax}(\text{Row 3}) = \begin{bmatrix}
+0.122 &amp;#x26; 0.129 &amp;#x26; 0.127 &amp;#x26; 0.118 &amp;#x26; 0.122 &amp;#x26; 0.127 &amp;#x26; 0.129 &amp;#x26; 0.127
+\end{bmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;다른 row들에도 모두 softmax를 적용하면 아래 Attention Weights가 계산된다.&lt;/p&gt;
+&lt;p&gt;$$
+\mathbf{AW_i} =
+\begin{bmatrix}
+0.123 &amp;#x26; 0.127 &amp;#x26; 0.126 &amp;#x26; 0.121 &amp;#x26; 0.123 &amp;#x26; 0.127 &amp;#x26; 0.128 &amp;#x26; 0.127 \
+0.123 &amp;#x26; 0.127 &amp;#x26; 0.126 &amp;#x26; 0.120 &amp;#x26; 0.123 &amp;#x26; 0.127 &amp;#x26; 0.128 &amp;#x26; 0.126 \
+0.122 &amp;#x26; 0.129 &amp;#x26; 0.127 &amp;#x26; 0.118 &amp;#x26; 0.122 &amp;#x26; 0.127 &amp;#x26; 0.129 &amp;#x26; 0.127 \
+0.124 &amp;#x26; 0.127 &amp;#x26; 0.126 &amp;#x26; 0.122 &amp;#x26; 0.124 &amp;#x26; 0.126 &amp;#x26; 0.127 &amp;#x26; 0.126 \
+0.124 &amp;#x26; 0.127 &amp;#x26; 0.126 &amp;#x26; 0.122 &amp;#x26; 0.124 &amp;#x26; 0.126 &amp;#x26; 0.127 &amp;#x26; 0.126 \
+0.122 &amp;#x26; 0.127 &amp;#x26; 0.125 &amp;#x26; 0.118 &amp;#x26; 0.122 &amp;#x26; 0.126 &amp;#x26; 0.127 &amp;#x26; 0.125 \
+0.123 &amp;#x26; 0.128 &amp;#x26; 0.126 &amp;#x26; 0.118 &amp;#x26; 0.122 &amp;#x26; 0.127 &amp;#x26; 0.128 &amp;#x26; 0.126 \
+0.123 &amp;#x26; 0.128 &amp;#x26; 0.126 &amp;#x26; 0.119 &amp;#x26; 0.122 &amp;#x26;&lt;/p&gt;
+&lt;p&gt;0.127 &amp;#x26; 0.128 &amp;#x26; 0.126
+\end{bmatrix}
+$$&lt;/p&gt;
+&lt;br&gt;
+&lt;h2 id=&quot;4-최종-output-계산&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#4-%EC%B5%9C%EC%A2%85-output-%EA%B3%84%EC%82%B0&quot; aria-label=&quot;4 최종 output 계산 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;&lt;strong&gt;4. 최종 Output 계산&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;Attention Weight를 Value (V)에 곱하여 최종 Output을 계산한다:
+$$
+\text{Output}&lt;em&gt;{\text{배}} = \sum&lt;/em&gt;{i} \text{Attention Weight}_i \cdot V_i
+$$&lt;/p&gt;
+&lt;p&gt;Value(V)는 각 단어가 “전달할 정보”를 담고 있는 벡터이다.&lt;br&gt;
+앞서 입력 행렬 $\mathbf{X}$ 와 학습된 $W_V$를 사용해 V를 계산하면 다음과 같다:&lt;/p&gt;
+&lt;p&gt;$$
+\mathbf{W}_V =
+\begin{bmatrix}
+0.3 &amp;#x26; 0.1 &amp;#x26; 0.2 &amp;#x26; 0.4 \
+0.1 &amp;#x26; 0.4 &amp;#x26; 0.3 &amp;#x26; 0.2 \
+0.4 &amp;#x26; 0.2 &amp;#x26; 0.1 &amp;#x26; 0.3 \
+0.2 &amp;#x26; 0.3 &amp;#x26; 0.4 &amp;#x26; 0.1
+\end{bmatrix}
+$$&lt;/p&gt;
+&lt;h1 id=&quot;mathbfv--mathbfx-mathbfw_v-beginbmatrix01--02--01--03-00--01--02--04-05--03--02--01-01--01--01--02-02--03--01--00-04--00--03--02-03--01--04--01-05--02--00--01endbmatrixbeginbmatrix03--01--02--04-01--04--03--02-04--02--01--03-02--03--04--01endbmatrix&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#mathbfv--mathbfx-mathbfw_v-beginbmatrix01--02--01--03-00--01--02--04-05--03--02--01-01--01--01--02-02--03--01--00-04--00--03--02-03--01--04--01-05--02--00--01endbmatrixbeginbmatrix03--01--02--04-01--04--03--02-04--02--01--03-02--03--04--01endbmatrix&quot; aria-label=&quot;mathbfv  mathbfx mathbfw_v beginbmatrix01  02  01  03 00  01  02  04 05  03  02  01 01  01  01  02 02  03  01  00 04  00  03  02 03  01  04  01 05  02  00  01endbmatrixbeginbmatrix03  01  02  04 01  04  03  02 04  02  01  03 02  03  04  01endbmatrix permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;$$
+\mathbf{V} = \mathbf{X} \mathbf{W}_V
+= \begin{bmatrix}
+0.1 &amp;#x26; 0.2 &amp;#x26; 0.1 &amp;#x26; 0.3 \
+0.0 &amp;#x26; 0.1 &amp;#x26; 0.2 &amp;#x26; 0.4 \
+0.5 &amp;#x26; 0.3 &amp;#x26; 0.2 &amp;#x26; 0.1 \
+0.1 &amp;#x26; 0.1 &amp;#x26; 0.1 &amp;#x26; 0.2 \
+0.2 &amp;#x26; 0.3 &amp;#x26; 0.1 &amp;#x26; 0.0 \
+0.4 &amp;#x26; 0.0 &amp;#x26; 0.3 &amp;#x26; 0.2 \
+0.3 &amp;#x26; 0.1 &amp;#x26; 0.4 &amp;#x26; 0.1 \
+0.5 &amp;#x26; 0.2 &amp;#x26; 0.0 &amp;#x26; 0.1
+\end{bmatrix}
+\begin{bmatrix}
+0.3 &amp;#x26; 0.1 &amp;#x26; 0.2 &amp;#x26; 0.4 \
+0.1 &amp;#x26; 0.4 &amp;#x26; 0.3 &amp;#x26; 0.2 \
+0.4 &amp;#x26; 0.2 &amp;#x26; 0.1 &amp;#x26; 0.3 \
+0.2 &amp;#x26; 0.3 &amp;#x26; 0.4 &amp;#x26; 0.1
+\end{bmatrix}&lt;/h1&gt;
+&lt;p&gt;\begin{bmatrix}
+0.17 &amp;#x26; 0.18 &amp;#x26; 0.18 &amp;#x26; 0.18 \
+0.22 &amp;#x26; 0.20 &amp;#x26; 0.18 &amp;#x26; 0.18 \
+0.32 &amp;#x26; 0.26 &amp;#x26; 0.23 &amp;#x26; 0.21 \
+0.13 &amp;#x26; 0.13 &amp;#x26; 0.13 &amp;#x26; 0.12 \
+0.17 &amp;#x26; 0.17 &amp;#x26; 0.15 &amp;#x26; 0.12 \
+0.30 &amp;#x26; 0.21 &amp;#x26; 0.23 &amp;#x26; 0.20 \
+0.32 &amp;#x26; 0.23 &amp;#x26; 0.24 &amp;#x26; 0.21 \
+0.29 &amp;#x26; 0.22 &amp;#x26; 0.20 &amp;#x26; 0.18
+\end{bmatrix}
+$$&lt;/p&gt;
+&lt;p&gt;이제 “배”에 대한 Attention Output을 계산한다&lt;/p&gt;
+&lt;p&gt;$$
+\mathbf{A}_{\text{Row 3}} \times \mathbf{V} =
+[0.122, 0.129, 0.127, 0.118, 0.122, 0.127, 0.129, 0.127] \times
+\begin{bmatrix}
+0.17 &amp;#x26; 0.18 &amp;#x26; 0.18 &amp;#x26; 0.18 \
+0.22 &amp;#x26; 0.20 &amp;#x26; 0.18 &amp;#x26; 0.18 \
+0.32 &amp;#x26; 0.26 &amp;#x26; 0.23 &amp;#x26; 0.21 \
+0.13 &amp;#x26; 0.13 &amp;#x26; 0.13 &amp;#x26; 0.12 \
+0.17 &amp;#x26; 0.17 &amp;#x26; 0.15 &amp;#x26; 0.12 \
+0.30 &amp;#x26; 0.21 &amp;#x26; 0.23 &amp;#x26; 0.20 \
+0.32 &amp;#x26; 0.23 &amp;#x26; 0.24 &amp;#x26; 0.21 \
+0.29 &amp;#x26; 0.22 &amp;#x26; 0.20 &amp;#x26; 0.18
+\end{bmatrix} =
+$$&lt;/p&gt;
+&lt;p&gt;$$
+\mathbf{A}_{\text{Row 3}} \times \mathbf{V} =
+[0.275, 0.222, 0.206, 0.183]
+$$&lt;/p&gt;
+&lt;p&gt;전체 row에 대해 계산하면 아래와 같은 Attention Output 결과를 볼 수 있다
+$$
+\text{Attention Output} =
+\begin{bmatrix}
+0.267 &amp;#x26; 0.219 &amp;#x26; 0.204 &amp;#x26; 0.181 \
+0.267 &amp;#x26; 0.219 &amp;#x26; 0.204 &amp;#x26; 0.181 \
+0.275 &amp;#x26; 0.222 &amp;#x26; 0.206 &amp;#x26; 0.183 \
+0.263 &amp;#x26; 0.218 &amp;#x26; 0.203 &amp;#x26; 0.180 \
+0.263 &amp;#x26; 0.218 &amp;#x26; 0.203 &amp;#x26; 0.180 \
+0.270 &amp;#x26; 0.221 &amp;#x26; 0.205 &amp;#x26; 0.182 \
+0.272 &amp;#x26; 0.221 &amp;#x26; 0.205 &amp;#x26; 0.182 \
+0.271 &amp;#x26; 0.220 &amp;#x26; 0.204 &amp;#x26; 0.181
+\end{bmatrix}
+$$
+&lt;br&gt;&lt;/p&gt;
+&lt;h2 id=&quot;5-attention-score를-통한-의미-결정&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#5-attention-score%EB%A5%BC-%ED%86%B5%ED%95%9C-%EC%9D%98%EB%AF%B8-%EA%B2%B0%EC%A0%95&quot; aria-label=&quot;5 attention score를 통한 의미 결정 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;&lt;strong&gt;5. Attention Score를 통한 의미 결정&lt;/strong&gt;&lt;/h2&gt;
+&lt;p&gt;최종 Output [0.73, 0.32]는 “배”가 문맥에서 가장 중요한 단어인 “고파서”와 강하게 연결된 정보를 반영한다. Output이 “배”가 “고파서”와 가장 강하게 연결됐다는 Attention Score를 활용해서 계산된 결과이기 때문이다&lt;/p&gt;
+&lt;p&gt;이 Output은 다음과 같은 역할을 한다:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;&lt;strong&gt;문맥적 의미 제공&lt;/strong&gt;: “배”가 “고파서”와 연관되어 “사람의 배”로 해석될 가능성이 높다는 문맥적 정보를 포함한다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;후속 레이어 활용&lt;/strong&gt;: Transformer의 다음 레이어는 이 정보를 개반으로 “배”의 문맥적 역할을 더 정교하게 학습한다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;최종 작업에 반영&lt;/strong&gt;: 번역, 요약, 질문응답 등 NLP 작업에서 “배”의 문맥적 의미가 정확히 반영되도록 지원한다.&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;최종 Output 벡터는 Transformer의 후속 레이어에서 사용되며, 다음과 같은 방식으로 “배”의 의미를 결정한다:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;문맥 기반 표현 학습&lt;/strong&gt;: Output 벡터는 “배”가 다른 단어와의 문맥적 관계를 학습한 결과다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;“배”와 “고파서”, “치킨”의 관계 → “사람의 배”일 가능성이 높음.&lt;/li&gt;
+&lt;li&gt;“배”와 “밤에”, “치킨”의 관계 → “과일 배”일 가능성.&lt;/li&gt;
+&lt;li&gt;“배”와 “밤에”의 관계 → 높진 않지만 “이동수단 배”일 가능성.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;다음 작업 수행&lt;/strong&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;질문 답변(Task): “배”가 무엇인지 명확히 설명.&lt;/li&gt;
+&lt;li&gt;번역(Task): “배”를 상황에 따라 다른 언어로 번역.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;이제 Attention Score가 어떻게 계산되는지 이해했으니, 이를 기반으로 Transformer 모델이 어떻게 학습되는지 알아보도록 하겠다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[What Is Attention?]]></title><description><![CDATA[An exploration of the concept of Attention in LLMs, discussing its significance and impact on model performance and understanding.]]></description><link>https://jasonkang14.github.io/llm/what-is-attention</link><guid isPermaLink="false">https://jasonkang14.github.io/llm/what-is-attention</guid><pubDate>Sat, 30 Nov 2024 20:35:37 GMT</pubDate><content:encoded>&lt;p&gt;In Korea, there is a tradition of “study” groups where engineers from various companies or backgrounds gather to explore specific engineering concepts. Participants typically select a book or an online curriculum to follow, and each week, one member is responsible for studying a chapter in depth and presenting the ideas to the group. I recently joined a study group focused on understanding how Large Language Models (LLMs) function. Last week, I was tasked with presenting the concepts of Attention and Transformers within LLMs. While I am familiar with these concepts, explaining them to others proved to be a distinct challenge compared to understanding them on my own. Here is my perspective on explaining what Attention is.&lt;/p&gt;
 &lt;h1 id=&quot;attention이란-무엇인가&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#attention%EC%9D%B4%EB%9E%80-%EB%AC%B4%EC%97%87%EC%9D%B8%EA%B0%80&quot; aria-label=&quot;attention이란 무엇인가 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Attention이란 무엇인가?&lt;/h1&gt;
-&lt;p&gt;Attention이라는 개념은 &lt;a href=&quot;https://arxiv.org/abs/1706.03762&quot; target=&quot;_blank&quot; rel=&quot;nofollow noopener noreferrer&quot;&gt;Attention Is All You Need&lt;/a&gt;에서 처음 소개되었다. 언어 모델에서 “Attention”라는 용어는 데이터를 처리할 때 입력 시퀀스의 특정 부분에 집중할 수 있게 하는 메커니즘을 의미한다. 이는 특히 단어가 여러 의미를 가질 때 중요하다. 모델은 적절한 해석을 결정하기 위해 주변 문맥을 고려해야 한다. Self-Attention 모델은 문장에서 각 단어의 중요도를 다르게 부여하여, 각 단어의 다른 단어와의 관련성을 평가할 수 있게 한다. 이러한 접근 방식은 모델이 문맥적 관계를 포착하는 능력을 향상시키고, 언어에 대한 전반적인 이해를 개선한다.&lt;/p&gt;
+&lt;p&gt;Attention이라는 개념은 &lt;a href=&quot;https://arxiv.org/abs/1706.03762&quot; target=&quot;_blank&quot; rel=&quot;nofollow noopener noreferrer&quot;&gt;Attention Is All You Need&lt;/a&gt;라는 논문을 통해 유명해졌다. 언어 모델에서 “Attention”라는 용어는 데이터를 처리할 때 입력 시퀀스의 특정 부분에 집중할 수 있게 하는 메커니즘을 의미한다. 이는 특히 단어가 여러 의미를 가질 때 중요하다. 모델은 적절한 해석을 결정하기 위해 주변 문맥을 고려해야 한다. Self-Attention 모델은 문장에서 각 단어의 중요도를 다르게 부여하여, 각 단어의 다른 단어와의 관련성을 평가할 수 있게 한다. 이러한 접근 방식은 모델이 문맥적 관계를 포착하는 능력을 향상시키고, 언어에 대한 전반적인 이해를 개선한다.&lt;/p&gt;
 &lt;h2 id=&quot;attention은-어떻게-작동하는가&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#attention%EC%9D%80-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%9E%91%EB%8F%99%ED%95%98%EB%8A%94%EA%B0%80&quot; aria-label=&quot;attention은 어떻게 작동하는가 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Attention은 어떻게 작동하는가&lt;/h2&gt;
 &lt;p&gt;언어 모델의 Attention 메커니즘은 시퀀스 내 다른 단어와의 관련성에 따라 각 단어에 다양한 중요도, 즉 &lt;code class=&quot;language-text&quot;&gt;Attention Score&lt;/code&gt;를 부여함으로써 작동한다. 자세한 작동 방식은 다음과 같다:&lt;/p&gt;
 &lt;h3 id=&quot;1-input-representation&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#1-input-representation&quot; aria-label=&quot;1 input representation permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;1. &lt;strong&gt;Input Representation&lt;/strong&gt;&lt;/h3&gt;
@@ -35,7 +360,7 @@
 &lt;li&gt;왜 “Self”인가?
 &lt;ul&gt;
 &lt;li&gt;“Self”라는 용어는 메커니즘이 동일한 시퀀스 내에서 작동함을 나타낸다.&lt;/li&gt;
-&lt;li&gt;각 토큰은 동일한 시퀀스 내의 모든 다른 토큰과 자신을 비교하여 주의 점수를 계산한다.
+&lt;li&gt;각 토큰은 동일한 시퀀스 내의 모든 다른 토큰과 자신을 비교하여 Attention Score를 계산한다.
 &lt;ul&gt;
 &lt;li&gt;예를 들어, “어제 밤에 배가 고파서 피자를 먹었다”라는 문장에서 “배”라는 토큰을 처리할 때, 모델은 “어제”, “밤에”, “배가”, “고파서”, “피자를”, “먹었다”와의 관계를 &lt;code class=&quot;language-text&quot;&gt;Attention Score&lt;/code&gt;를 통해서 계산한다.&lt;/li&gt;
 &lt;li&gt;이 과정은 외부 시퀀스나 문맥이 아닌 입력 자체의 토큰만을 포함하므로 “Self-Attention”이라는 용어가 사용된다.&lt;/li&gt;
@@ -46,7 +371,7 @@
 &lt;/ul&gt;
 &lt;h3 id=&quot;3-attention-score&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#3-attention-score&quot; aria-label=&quot;3 attention score permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;3. &lt;strong&gt;Attention Score&lt;/strong&gt;&lt;/h3&gt;
 &lt;ul&gt;
-&lt;li&gt;한 단어의 쿼리(Q)는 모든 단어의 키(K)와 비교하여 점수(dot product)를 계산한다. 이 점수는 현재 단어에 대해 각 단어가 얼마나 관련이 있는지를 나타낸다.
+&lt;li&gt;한 단어의 쿼리(Q)는 모든 단어의 키(K)와 비교하여 Attention Score(dot product)를 계산한다. 이 Attention Score는 현재 단어에 대해 각 단어가 얼마나 관련이 있는지를 나타낸다.
 &lt;ul&gt;
 &lt;li&gt;예를들면, “어제 밤에 배가 고파서 피자를 먹었다”라는 문장에서 &lt;code class=&quot;language-text&quot;&gt;배&lt;/code&gt;라는 단어가, 과일, 이동수단이 아닌 사람의 신체 부위를 나타낸다는 것을 이해하기 위해 &lt;code class=&quot;language-text&quot;&gt;배&lt;/code&gt;라는 단어를 &lt;code class=&quot;language-text&quot;&gt;피자&lt;/code&gt;라는 단어와 연관지어야 하는데, 이를 Attention Score를 활용해 계산한다.&lt;/li&gt;
 &lt;/ul&gt;
@@ -55,7 +380,7 @@
 &lt;/ul&gt;
 &lt;h2 id=&quot;multi-head-attention으로-확장&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#multi-head-attention%EC%9C%BC%EB%A1%9C-%ED%99%95%EC%9E%A5&quot; aria-label=&quot;multi head attention으로 확장 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Multi-Head Attention으로 확장&lt;/h2&gt;
 &lt;p&gt;&lt;img src=&quot;https://i.imgur.com/blJ7Vuk.png&quot; alt=&quot;Multi-Head Attention&quot;&gt;&lt;/p&gt;
-&lt;p&gt;현대의 주의 메커니즘은 &lt;strong&gt;Multi-Head Attention&lt;/strong&gt;을 사용하여, 서로 다른 학습된 가중치로 병렬로 과정을 반복하여 시퀀스 내 관계의 다양한 측면을 포착한다. 이러한 헤드의 출력은 연결되어 추가로 처리된다.&lt;/p&gt;
+&lt;p&gt;현대의 Attention Mechanism은 &lt;strong&gt;Multi-Head Attention&lt;/strong&gt;을 사용하여, 서로 다른 학습된 가중치로 병렬로 과정을 반복하여 시퀀스 내 관계의 다양한 측면을 포착한다. 이러한 헤드의 출력은 연결되어 추가로 처리된다.&lt;/p&gt;
 &lt;h3 id=&quot;multi-head-attention의-장점&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#multi-head-attention%EC%9D%98-%EC%9E%A5%EC%A0%90&quot; aria-label=&quot;multi head attention의 장점 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Multi-Head Attention의 장점&lt;/h3&gt;
 &lt;p&gt;Multi-Head Attention은 Self-Attention 메커니즘을 확장하여, 입력 데이터를 동시에 다양한 관점에서 학습하고 표현할 수 있도록 한다.&lt;/p&gt;
 &lt;ul&gt;
@@ -89,32 +414,32 @@
 &lt;li&gt;모든 헤드의 출력을 연결(concatenate)한 후 선형 레이어를 통과시켜 최종 표현을 생성한다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h2 id=&quot;attention이-주목받게된-이유&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#attention%EC%9D%B4-%EC%A3%BC%EB%AA%A9%EB%B0%9B%EA%B2%8C%EB%90%9C-%EC%9D%B4%EC%9C%A0&quot; aria-label=&quot;attention이 주목받게된 이유 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Attention이 주목받게된 이유&lt;/h2&gt;
-&lt;p&gt;Attention은 NLP에서 혁신적인 개념으로, 시퀀스를 처리할 때 **Recurrent Neural Network(RNN)**과 **Convolutional Neural Network(CNN)**의 주요 한계를 해결한 것이다. 주의가 주목받는 이유는 다음과 같다:&lt;/p&gt;
+&lt;p&gt;Attention은 NLP에서 혁신적인 개념으로, 시퀀스를 처리할 때 **Recurrent Neural Network(RNN)**과 **Convolutional Neural Network(CNN)**의 주요 한계를 해결한 것이다. Attention이 주목받는 이유는 다음과 같다:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;효율적인 관계 포착 및 병렬화&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;strong&gt;장거리 의존성 포착&lt;/strong&gt;: Attention 메커니즘은 시퀀스 내 모든 토큰 간의 직접적인 관계를 계산하여, 모델이 장거리 의존성을 효율적으로 포착하고 전체 시퀀스 문맥을 이해할 수 있게 한다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;병렬화&lt;/strong&gt;: Transformer와 같은 주의 기반 모델은 모든 토큰을 동시에 처리하여 학습과 추론을 빠르고 확장 가능하게 만든다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;병렬화&lt;/strong&gt;: Transformer와 같은 Attention 기반 모델은 모든 토큰을 동시에 처리하여 학습과 추론을 빠르고 확장 가능하게 만든다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;동적 문맥화 및 해석 가능성&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;동적 문맥화&lt;/strong&gt;: 주의는 현재 문맥에 따라 토큰의 중요도에 가중치를 동적으로 부여하여, 모델이 입력의 가장 중요한 부분에 집중할 수 있게 한다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;해석 가능성&lt;/strong&gt;: 주의 점수는 모델이 집중하고 있는 토큰을 명확하게 나타내어 모델의 동작을 해석하고 디버그하기 쉽게 만든다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;동적 문맥화&lt;/strong&gt;: Attention은 현재 문맥에 따라 토큰의 중요도에 가중치를 동적으로 부여하여, 모델이 입력의 가장 중요한 부분에 집중할 수 있게 한다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;해석 가능성&lt;/strong&gt;: Attention Score는 모델이 집중하고 있는 토큰을 명확하게 나타내어 모델의 동작을 해석하고 디버그하기 쉽게 만든다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;li&gt;
 &lt;p&gt;&lt;strong&gt;확장성 및 다양한 적용 가능성&lt;/strong&gt;&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;&lt;strong&gt;트랜스포머로의 확장성&lt;/strong&gt;: 주의는 트랜스포머 아키텍처의 기초가 되어, RNN의 필요성을 제거하고 BERT, GPT 등 현대 NLP 시스템의 중추가 된다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;다양한 작업에서의 성능 향상&lt;/strong&gt;: 주의 메커니즘은 기계 번역, 텍스트 요약, 질문 응답, 언어 모델링 등 다양한 NLP 작업에서 성능을 크게 향상시킨다.&lt;/li&gt;
-&lt;li&gt;&lt;strong&gt;보편적 적용 가능성&lt;/strong&gt;: 주의는 NLP에 국한되지 않고, 비전, 음성, 멀티모달 모델 등 다양한 분야에 성공적으로 적용된다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;트랜스포머로의 확장성&lt;/strong&gt;: Attention은 트랜스포머 아키텍처의 기초가 되어, RNN의 필요성을 제거하고 BERT, GPT 등 현대 NLP 시스템의 중추가 된다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;다양한 작업에서의 성능 향상&lt;/strong&gt;: Attention Mechanism은 기계 번역, 텍스트 요약, 질문 응답, 언어 모델링 등 다양한 NLP 작업에서 성능을 크게 향상시킨다.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;보편적 적용 가능성&lt;/strong&gt;: Attention는 NLP에 국한되지 않고, 비전, 음성, 멀티모달 모델 등 다양한 분야에 성공적으로 적용된다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;요약하자면, Attention Mechanism은 효율적인 관계 포착과 병렬화를 가능하게 하고, 동적이고 문맥에 민감한 토큰 표현을 제공하며, 다양한 작업과 분야에 걸쳐 확장성과 적용 가능성을 보여준다. 이러한 이점은 주의를 게임 체인저로 만들어 RNN 기반 모델에서 트랜스포머 기반 아키텍처로의 전환을 주도하고, 현대 NLP 시대의 무대를 마련한다.&lt;/p&gt;
+&lt;p&gt;요약하자면, Attention Mechanism은 효율적인 관계 포착과 병렬화를 가능하게 하고, 동적이고 문맥에 민감한 토큰 표현을 제공하며, 다양한 작업과 분야에 걸쳐 확장성과 적용 가능성을 보여준다. 이러한 이점은 Attention을 게임 체인저로 만들어 RNN 기반 모델에서 트랜스포머 기반 아키텍처로의 전환을 주도하고, 현대 NLP 시대의 무대를 마련한다.&lt;/p&gt;
 &lt;p&gt;Attention은 다양한 장점이 있다. 이제 다음 포스트에서 Attention이 어마어마한 힘을 발휘한 Transformer에 대해 작성해보도록 하겠다.&lt;/p&gt;</content:encoded></item><item><title><![CDATA[Why Is Evaluation Important in Building an LLM Application?]]></title><description><![CDATA[Exploring the significance of evaluation in developing LLM applications]]></description><link>https://jasonkang14.github.io/llm/why-evaluation-is-important</link><guid isPermaLink="false">https://jasonkang14.github.io/llm/why-evaluation-is-important</guid><pubDate>Thu, 21 Nov 2024 20:35:37 GMT</pubDate><content:encoded>&lt;h1 id=&quot;tldr&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#tldr&quot; aria-label=&quot;tldr permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;TL;DR&lt;/h1&gt;
 &lt;ol&gt;
 &lt;li&gt;In traditional deep learning, each model was designed to perform a specific task, and engineers tested each model before deployment.&lt;/li&gt;
