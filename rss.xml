@@ -1,4 +1,178 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Blog by Jason Kang]]></title><description><![CDATA[Blog by Jason Kang]]></description><link>http://github.com/dylang/node-rss</link><generator>GatsbyJS</generator><lastBuildDate>Sun, 01 Dec 2024 23:49:09 GMT</lastBuildDate><item><title><![CDATA[How Is Attention Calculated?]]></title><description><![CDATA[A detailed exploration of how attentions are calculated in the Transformer model, as introduced in 'Attention Is All You Need.']]></description><link>https://jasonkang14.github.io/llm/how-is-attention-score-calculated</link><guid isPermaLink="false">https://jasonkang14.github.io/llm/how-is-attention-score-calculated</guid><pubDate>Sun, 01 Dec 2024 20:35:37 GMT</pubDate><content:encoded>&lt;p&gt;In Korea, there is a tradition of “study” groups where engineers from various companies or backgrounds gather to explore specific engineering concepts. Participants typically select a book or an online curriculum to follow, and each week, one member is responsible for studying a chapter in depth and presenting the ideas to the group. I recently joined a study group focused on understanding how Large Language Models (LLMs) function. Last week, I was tasked with presenting the concepts of Attention and Transformers within LLMs. While I am familiar with these concepts, explaining them to others proved to be a distinct challenge compared to understanding them on my own. Here is my perspective on explaining how the Attension Score is calculated&lt;/p&gt;
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[Blog by Jason Kang]]></title><description><![CDATA[Blog by Jason Kang]]></description><link>http://github.com/dylang/node-rss</link><generator>GatsbyJS</generator><lastBuildDate>Thu, 19 Dec 2024 11:11:58 GMT</lastBuildDate><item><title><![CDATA[Using LLM as a Reranker]]></title><description><![CDATA[Explore the concept of Rerankers, their role in enhancing search results, and how they leverage large language models to improve the relevance and accuracy of information retrieval.]]></description><link>https://jasonkang14.github.io/llm/how-to-use-llm-as-a-reranker</link><guid isPermaLink="false">https://jasonkang14.github.io/llm/how-to-use-llm-as-a-reranker</guid><pubDate>Thu, 19 Dec 2024 20:35:37 GMT</pubDate><content:encoded>&lt;h1 id=&quot;what-is-reranker&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#what-is-reranker&quot; aria-label=&quot;what is reranker permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;What Is Reranker?&lt;/h1&gt;
+&lt;p&gt;A reranker is a component in LLM applications that helps improve search and retrieval quality by reordering a set of initial results based on more sophisticated relevance criteria. Let me explain how it typically works:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Initial Retrieval: First, a faster but simpler retrieval system (like vector search) pulls a set of potentially relevant documents or passages from a database. This initial retrieval prioritizes speed and recall.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Reranking Stage: The reranker then takes this initial set and performs a more thorough analysis to reorder them based on their true relevance to the query. The reranker uses more sophisticated matching techniques that would be too computationally expensive to run on the entire document collection.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;For example, if you search for “What are the health benefits of running?“:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Initial retrieval might return 20-50 passages containing keywords about running and health&lt;/li&gt;
+&lt;li&gt;The reranker then carefully compares each passage with the query, considering factors like:
+&lt;ul&gt;
+&lt;li&gt;Semantic similarity&lt;/li&gt;
+&lt;li&gt;Whether the passage actually answers the question&lt;/li&gt;
+&lt;li&gt;The quality and authority of the content&lt;/li&gt;
+&lt;li&gt;Cross-passage relationships&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;different-types-of-rerankers&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#different-types-of-rerankers&quot; aria-label=&quot;different types of rerankers permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Different types of rerankers&lt;/h2&gt;
+&lt;p&gt;Common types of rerankers include:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Cross-encoder models: These look at the query and candidate passage together to determine relevance&lt;/li&gt;
+&lt;li&gt;Mono-encoder models: These encode the query and passages separately but can compare them more thoroughly&lt;/li&gt;
+&lt;li&gt;Hybrid approaches that combine multiple scoring methods&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The main benefits of using a reranker are:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Higher precision in search results&lt;/li&gt;
+&lt;li&gt;Better handling of semantic nuances&lt;/li&gt;
+&lt;li&gt;Improved result ordering without sacrificing initial retrieval speed&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Several companies provide reranking models as part of their AI offerings, with Cohere being one of the prominent providers. Let me break down how different companies approach this:&lt;/p&gt;
+&lt;p&gt;Cohere:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Offers &lt;code class=&quot;language-text&quot;&gt;rerank&lt;/code&gt; as a dedicated API endpoint&lt;/li&gt;
+&lt;li&gt;Their model can handle up to 25 candidates per request&lt;/li&gt;
+&lt;li&gt;Takes a query and a list of documents/passages as input&lt;/li&gt;
+&lt;li&gt;Returns relevance scores and reranked results&lt;/li&gt;
+&lt;li&gt;Notable for having multilingual support&lt;/li&gt;
+&lt;li&gt;Particularly good at semantic matching rather than just lexical matching&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Microsoft Azure:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Provides reranking capabilities through Azure Cognitive Search&lt;/li&gt;
+&lt;li&gt;Integrates with their vector search and semantic search features&lt;/li&gt;
+&lt;li&gt;Can be used with their pre-trained models or custom models&lt;/li&gt;
+&lt;li&gt;Offers integration with OpenAI models for reranking&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Amazon:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Offers reranking through Amazon Kendra&lt;/li&gt;
+&lt;li&gt;Includes semantic ranking capabilities&lt;/li&gt;
+&lt;li&gt;Can be integrated with custom ranking expressions&lt;/li&gt;
+&lt;li&gt;Works well with their document retrieval system&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Google Cloud:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Provides Enterprise Search with built-in reranking capabilities&lt;/li&gt;
+&lt;li&gt;Offers Vertex AI Search (formerly Enterprise Search) with semantic ranking&lt;/li&gt;
+&lt;li&gt;Can be customized with domain-specific knowledge&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;llm-as-a-reranker&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#llm-as-a-reranker&quot; aria-label=&quot;llm as a reranker permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;LLM as a Reranker&lt;/h2&gt;
+&lt;p&gt;Using an LLM as a reranker is an interesting approach that can provide sophisticated semantic matching. Here’s a breakdown:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;Basic Approach:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;python&quot;&gt;&lt;pre class=&quot;language-python&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;llm_rerank&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;query&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; documents&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; llm&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    ranked_results &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; doc &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; documents&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        prompt &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;&quot;&quot;
+        Query: &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;query&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;
+        Document: &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;doc&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;
+        
+        On a scale of 0-10, how relevant is this document to the query?
+        Provide your score and brief reasoning.
+        &quot;&quot;&quot;&lt;/span&gt;&lt;/span&gt;
+        score &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; llm&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;get_score&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;prompt&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;  &lt;span class=&quot;token comment&quot;&gt;# You&apos;d implement this based on your LLM&lt;/span&gt;
+        ranked_results&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;append&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;score&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; doc&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;sorted&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;ranked_results&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; reverse&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ol start=&quot;2&quot;&gt;
+&lt;li&gt;More Sophisticated Methods:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;python&quot;&gt;&lt;pre class=&quot;language-python&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;advanced_llm_rerank&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;query&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; documents&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; llm&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    prompt_template &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token triple-quoted-string string&quot;&gt;&quot;&quot;&quot;
+    Rate the relevance of this document for the given query.
+    Consider these aspects:
+    - Direct answer relevance (0-5)
+    - Information completeness (0-3)
+    - Factual accuracy (0-2)
+    
+    Query: {query}
+    Document: {document}
+    
+    Provide scores for each aspect and a total score out of 10.
+    &quot;&quot;&quot;&lt;/span&gt;
+    
+    results &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; doc &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; documents&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        prompt &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; prompt_template&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;query&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;query&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; document&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;doc&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        scores &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; llm&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;analyze&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;prompt&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        results&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;append&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;scores&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&apos;total&apos;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; doc&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;sorted&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;results&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; reverse&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;Key Considerations:&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;Cost and Latency:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;LLMs are relatively slow and expensive compared to traditional rerankers&lt;/li&gt;
+&lt;li&gt;Best to limit to a small number of candidates (e.g., top 5-10 from initial retrieval)&lt;/li&gt;
+&lt;li&gt;Consider batching requests if your LLM supports it&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Prompt Engineering:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Clear scoring criteria are essential&lt;/li&gt;
+&lt;li&gt;Consider breaking down relevance into specific aspects&lt;/li&gt;
+&lt;li&gt;You might want to include examples of good and bad matches&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Performance Optimization:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Cache results for common queries&lt;/li&gt;
+&lt;li&gt;Use smaller LLMs specialized for ranking&lt;/li&gt;
+&lt;li&gt;Consider async processing for better throughput&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Hybrid Approaches:&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;python&quot;&gt;&lt;pre class=&quot;language-python&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;hybrid_rerank&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;query&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; documents&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;# First pass with traditional reranker&lt;/span&gt;
+    initial_rerank &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; traditional_reranker&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;rank&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;query&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; documents&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    top_candidates &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; initial_rerank&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;5&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+    
+    &lt;span class=&quot;token comment&quot;&gt;# Second pass with LLM for final ordering&lt;/span&gt;
+    final_ranking &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; llm_rerank&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;query&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; top_candidates&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; final_ranking&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;ol start=&quot;5&quot;&gt;
+&lt;li&gt;Output Parsing:&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class=&quot;gatsby-highlight&quot; data-language=&quot;python&quot;&gt;&lt;pre class=&quot;language-python&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;parse_llm_score&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;llm_response&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token comment&quot;&gt;# Example parsing logic&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token comment&quot;&gt;# Extract numerical score from LLM response&lt;/span&gt;
+        score_pattern &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;r&quot;Score:\s*(\d+(?:\.\d+)?)&quot;&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;match&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; re&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;search&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;score_pattern&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; llm_response&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;match&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;float&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token keyword&quot;&gt;match&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;group&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;token comment&quot;&gt;# Fallback parsing logic&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;except&lt;/span&gt; Exception&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+&lt;p&gt;The main advantages of using LLMs as rerankers:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Deep semantic understanding&lt;/li&gt;
+&lt;li&gt;Ability to handle complex queries&lt;/li&gt;
+&lt;li&gt;Flexible scoring criteria&lt;/li&gt;
+&lt;li&gt;Can provide explanations for rankings&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The main challenges:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Higher latency&lt;/li&gt;
+&lt;li&gt;Higher cost per query&lt;/li&gt;
+&lt;li&gt;Need for careful prompt engineering&lt;/li&gt;
+&lt;li&gt;Potential inconsistency in scoring&lt;/li&gt;
+&lt;/ul&gt;</content:encoded></item><item><title><![CDATA[How Is Attention Calculated?]]></title><description><![CDATA[A detailed exploration of how attentions are calculated in the Transformer model, as introduced in 'Attention Is All You Need.']]></description><link>https://jasonkang14.github.io/llm/how-is-attention-score-calculated</link><guid isPermaLink="false">https://jasonkang14.github.io/llm/how-is-attention-score-calculated</guid><pubDate>Sun, 01 Dec 2024 20:35:37 GMT</pubDate><content:encoded>&lt;p&gt;In Korea, there is a tradition of “study” groups where engineers from various companies or backgrounds gather to explore specific engineering concepts. Participants typically select a book or an online curriculum to follow, and each week, one member is responsible for studying a chapter in depth and presenting the ideas to the group. I recently joined a study group focused on understanding how Large Language Models (LLMs) function. Last week, I was tasked with presenting the concepts of Attention and Transformers within LLMs. While I am familiar with these concepts, explaining them to others proved to be a distinct challenge compared to understanding them on my own. Here is my perspective on explaining how the Attension Score is calculated&lt;/p&gt;
 &lt;h1 id=&quot;attention-score란&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#attention-score%EB%9E%80&quot; aria-label=&quot;attention score란 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Attention Score란?&lt;/h1&gt;
 &lt;p&gt;Attention Score는 모델이 입력 데이터의 특정 부분에 더 집중하도록 가중치를 부여하는 방식이다. Attention Score는 주어진 Query와 Key의 관계를 수치화하여 계산되며, 이 값이 클수록 해당 Key가 Query와 더 밀접한 연관성을 가진다고 본다.&lt;/p&gt;
 &lt;h2 id=&quot;queryq-keyk-valuev-도출-과정&quot; style=&quot;position:relative;&quot;&gt;&lt;a href=&quot;#queryq-keyk-valuev-%EB%8F%84%EC%B6%9C-%EA%B3%BC%EC%A0%95&quot; aria-label=&quot;queryq keyk valuev 도출 과정 permalink&quot; class=&quot;anchor before&quot;&gt;&lt;svg aria-hidden=&quot;true&quot; focusable=&quot;false&quot; height=&quot;16&quot; version=&quot;1.1&quot; viewBox=&quot;0 0 16 16&quot; width=&quot;16&quot;&gt;&lt;path fill-rule=&quot;evenodd&quot; d=&quot;M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z&quot;&gt;&lt;/path&gt;&lt;/svg&gt;&lt;/a&gt;Query(Q), Key(K), Value(V) 도출 과정&lt;/h2&gt;
