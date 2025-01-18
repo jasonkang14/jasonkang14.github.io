@@ -9,7 +9,7 @@ tags:
   - "LLM"
   - "Huggingface"
 
-description: "Huggingface Transformers is a library for building and training transformer models. It provides a wide range of pre-trained models, tools for fine-tuning, and a flexible interface for building custom models. This article explores the key components and functionalities of the library, including model architecture, training, and inference."
+description: "A deep dive into how Huggingface Transformers works under the hood, exploring its pipeline architecture, model loading process, and key functionalities that make it a powerful tool for working with transformer models."
 ---
 # How does Huggingface Transformers work?
 
