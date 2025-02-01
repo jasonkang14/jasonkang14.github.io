@@ -1,9 +1,9 @@
 ---
-title: "Building an SAT Reading Prep Application"
+title: "Building an SAT Reading Prep Application with LLM" 
 date: "2025-01-28T20:35:37.121Z"
 template: "post"
 draft: false
-slug: "/llm/building-an-sat-reading-prep-application"
+slug: "/llm/building-an-sat-reading-prep-application-with-llm"
 category: "LLM"
 tags:
   - "LLM"
