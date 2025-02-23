@@ -30,9 +30,10 @@ Without any sampling parameters, the model would simply choose the token with th
 
 Temperature is perhaps the most widely known sampling parameter, typically ranging from 0.0 to 2.0. It works by modifying the probability distribution before sampling occurs. The mathematical transformation is:
 
-```python
-new_probabilities = exp(log(original_probabilities) / temperature)
-```
+$$ 
+\text{new\_probabilities} = \exp\left(\frac{\log(\text{original\_probabilities})}{\text{temperature}}\right)
+$$  
+
 
 Let's break down what different temperature values do:
 
@@ -246,21 +247,158 @@ For maximizing creativity:
 - Top-p: 0.95-1.0
 Example use cases: Storytelling, poetry, ideation
 
-## Common Pitfalls and Best Practices
+## Understanding Top-k Sampling
 
-1. **Avoiding Extreme Values**
-   - Very high temperatures (>1.5) often produce gibberish
-   - Extremely low top-p values (<0.1) can make outputs too restrictive
+While temperature modifies probabilities and top-p works with cumulative probability mass, top-k sampling takes perhaps the most straightforward approach: it simply keeps a fixed number (k) of the most likely tokens and discards the rest.
 
-2. **Combining Parameters**
-   When using both temperature and top-p:
-   - Apply temperature first to modify the distribution
-   - Then apply top-p sampling to the modified distribution
-   - Be careful not to be too restrictive with both parameters
+### How Top-k Works
 
-3. **Context Sensitivity**
-   - Different parts of your application might benefit from different sampling settings
-   - Consider dynamically adjusting parameters based on the context or user needs
+Let's use our previous example of completing "The capital of France is":
+
+```python
+Initial probabilities:
+"Paris" → 0.60
+"Lyon" → 0.15
+"Marseille" → 0.10
+"London" → 0.05
+"Berlin" → 0.04
+"Madrid" → 0.03
+"Rome" → 0.02
+"Other tokens" → 0.01
+```
+
+With top-k = 3, we would:
+1. Keep only the 3 most likely tokens:
+```python
+"Paris" → 0.60
+"Lyon" → 0.15
+"Marseille" → 0.10
+```
+
+2. Renormalize the probabilities to sum to 1:
+```python
+"Paris" → 0.60 / 0.85 ≈ 0.706 (70.6%)
+"Lyon" → 0.15 / 0.85 ≈ 0.176 (17.6%)
+"Marseille" → 0.10 / 0.85 ≈ 0.118 (11.8%)
+```
+
+### Implementation Example
+
+Here's how we can implement top-k sampling:
+
+```python
+def apply_top_k(
+    probs: Dict[str, float], 
+    k: int
+) -> Dict[str, float]:
+    """
+    Apply top-k sampling to a probability distribution.
+    
+    Args:
+        probs (Dict[str, float]): Original token probabilities
+        k (int): Number of top tokens to keep
+        
+    Returns:
+        Dict[str, float]: Modified probability distribution
+    """
+    # Sort tokens by probability
+    sorted_probs = sorted(
+        probs.items(), 
+        key=lambda x: x[1], 
+        reverse=True
+    )
+    
+    # Keep only top k tokens
+    top_k_tokens = sorted_probs[:k]
+    
+    # Create new distribution with only selected tokens
+    new_probs = dict(top_k_tokens)
+    
+    # Renormalize probabilities
+    normalization = sum(new_probs.values())
+    return {
+        token: prob / normalization 
+        for token, prob in new_probs.items()
+    }
+
+# Example showing different k values
+distribution = {
+    "Paris": 0.60,
+    "Lyon": 0.15,
+    "Marseille": 0.10,
+    "London": 0.05,
+    "Berlin": 0.04,
+    "Madrid": 0.03,
+    "Rome": 0.02,
+    "Other": 0.01
+}
+
+k_values = [2, 3, 4]
+for k in k_values:
+    modified = apply_top_k(distribution, k)
+    print(f"\nTop-k {k}:")
+    for token, prob in modified.items():
+        print(f"{token}: {prob:.3f}")
+```
+
+### Comparing Sampling Methods
+
+Let's examine how top-k compares to our other sampling methods:
+
+1. **Top-k vs Temperature**
+   - Temperature: Modifies the entire distribution, making it sharper or flatter
+   - Top-k: Simply cuts off all but the k most likely tokens
+   - Temperature can work with top-k, modifying probabilities before the cutoff
+
+2. **Top-k vs Top-p**
+   - Top-k: Uses a fixed number of tokens
+   - Top-p: Adapts the number of tokens based on probability mass
+   - Top-p is generally more flexible and context-aware
+
+### Limitations of Top-k
+
+Top-k sampling has some important limitations:
+
+1. **Fixed Cutoff**: Using a fixed k regardless of the probability distribution can be problematic:
+   ```python
+   # Case 1: Sharp distribution
+   "the" → 0.9
+   "a" → 0.05
+   "an" → 0.03
+   "that" → 0.02
+   
+   # Case 2: Flat distribution
+   "blue" → 0.3
+   "red" → 0.28
+   "green" → 0.27
+   "yellow" → 0.15
+   ```
+   With k=2, we'd keep two tokens in both cases, even though this makes more sense in Case 1 than Case 2.
+
+2. **Arbitrary Cutoffs**: Similar tokens might be treated very differently if they fall just above or below k:
+   ```python
+   k = 3:
+   "dog" → 0.4 (kept)
+   "cat" → 0.3 (kept)
+   "puppy" → 0.2 (kept)
+   "kitten" → 0.1 (discarded despite similarity to kept tokens)
+   ```
+
+### When to Use Top-k
+
+Despite its limitations, top-k can be useful in specific scenarios:
+
+1. When you want precise control over the maximum number of tokens to consider
+2. In systems with computational constraints where evaluating more tokens is expensive
+3. Combined with temperature to prevent sampling from the long tail while still allowing probability modification
+
+### Best Practices
+
+1. **Choosing k**: Start with k values between 20-100 for general text generation
+2. **Combining Methods**: Consider using top-k with temperature or combining all three methods
+3. **Testing**: Always test different k values with your specific use case and model
+
+The code implementation lets you experiment with different k values and see their effects on the probability distribution. Try running it with different initial distributions and k values to build intuition about how top-k sampling behaves.
 
 ## Implementation Examples
 
@@ -508,3 +646,12 @@ The example usage sections demonstrate how to use each function and help build i
 Understanding temperature and top-p sampling is crucial for getting the most out of LLMs. These parameters offer fine-grained control over the balance between creativity and determinism in model outputs. By carefully tuning these parameters based on your specific use case, you can significantly improve the quality and appropriateness of generated content.
 
 Remember that there's no one-size-fits-all setting – experimentation is key to finding the right balance for your specific application. Consider creating a systematic testing process to evaluate different parameter combinations for your particular use case.
+
+## Additional Resources
+
+For those interested in diving deeper into this topic, I recommend exploring:
+- The original Nucleus Sampling paper by Holtzman et al.
+- Practical implementations in popular LLM frameworks
+- Real-world case studies of parameter tuning in production systems
+
+What sampling strategies have you found most effective in your LLM applications? Share your experiences and insights in the comments below!
