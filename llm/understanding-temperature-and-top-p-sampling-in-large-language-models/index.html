@@ -96,7 +96,7 @@
 <p>Without any sampling parameters, the model would simply choose the token with the highest probability (greedy decoding). However, this often leads to repetitive and deterministic outputs. This is where temperature and top-p sampling come in.</p>
 <h2 id="temperature-controlling-randomness" style="position:relative;"><a href="#temperature-controlling-randomness" aria-label="temperature controlling randomness permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Temperature: Controlling Randomness</h2>
 <p>Temperature is perhaps the most widely known sampling parameter, typically ranging from 0.0 to 2.0. It works by modifying the probability distribution before sampling occurs. The mathematical transformation is:</p>
-<div class="gatsby-highlight" data-language="python"><pre class="language-python"><code class="language-python">new_probabilities <span class="token operator">=</span> exp<span class="token punctuation">(</span>log<span class="token punctuation">(</span>original_probabilities<span class="token punctuation">)</span> <span class="token operator">/</span> temperature<span class="token punctuation">)</span></code></pre></div>
+<div class="math math-display"><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><mtext>new_probabilities</mtext><mo>=</mo><mi>exp</mi><mo>⁡</mo><mrow><mo fence="true">(</mo><mfrac><mrow><mi>log</mi><mo>⁡</mo><mo stretchy="false">(</mo><mtext>original_probabilities</mtext><mo stretchy="false">)</mo></mrow><mtext>temperature</mtext></mfrac><mo fence="true">)</mo></mrow></mrow><annotation encoding="application/x-tex">\text{new\_probabilities} = \exp\left(\frac{\log(\text{original\_probabilities})}{\text{temperature}}\right)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0044em;vertical-align:-0.31em;"></span><span class="mord text"><span class="mord">new_probabilities</span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.4em;vertical-align:-0.95em;"></span><span class="mop">exp</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;"><span class="delimsizing size3">(</span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.45em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord text"><span class="mord">temperature</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.7em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">lo<span style="margin-right:0.01389em;">g</span></span><span class="mopen">(</span><span class="mord text"><span class="mord">original_probabilities</span></span><span class="mclose">)</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.8804em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mclose delimcenter" style="top:0em;"><span class="delimsizing size3">)</span></span></span></span></span></span></span></div>
 <p>Let’s break down what different temperature values do:</p>
 <h3 id="understanding-temperature-through-examples" style="position:relative;"><a href="#understanding-temperature-through-examples" aria-label="understanding temperature through examples permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Understanding Temperature Through Examples</h3>
 <p>Let’s explore how different temperature values transform probability distributions through concrete examples. Consider an LLM generating the next word after “The weather today is”:</p>
@@ -266,32 +266,147 @@ Final sampling probabilities<span class="token punctuation">:</span>
 <li>Top-p: 0.95-1.0</li>
 </ul>
 <p>Example use cases: Storytelling, poetry, ideation</p>
-<h2 id="common-pitfalls-and-best-practices" style="position:relative;"><a href="#common-pitfalls-and-best-practices" aria-label="common pitfalls and best practices permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Common Pitfalls and Best Practices</h2>
+<h2 id="understanding-top-k-sampling" style="position:relative;"><a href="#understanding-top-k-sampling" aria-label="understanding top k sampling permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Understanding Top-k Sampling</h2>
+<p>While temperature modifies probabilities and top-p works with cumulative probability mass, top-k sampling takes perhaps the most straightforward approach: it simply keeps a fixed number (k) of the most likely tokens and discards the rest.</p>
+<h3 id="how-top-k-works" style="position:relative;"><a href="#how-top-k-works" aria-label="how top k works permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>How Top-k Works</h3>
+<p>Let’s use our previous example of completing “The capital of France is”:</p>
+<div class="gatsby-highlight" data-language="python"><pre class="language-python"><code class="language-python">Initial probabilities<span class="token punctuation">:</span>
+<span class="token string">"Paris"</span> → <span class="token number">0.60</span>
+<span class="token string">"Lyon"</span> → <span class="token number">0.15</span>
+<span class="token string">"Marseille"</span> → <span class="token number">0.10</span>
+<span class="token string">"London"</span> → <span class="token number">0.05</span>
+<span class="token string">"Berlin"</span> → <span class="token number">0.04</span>
+<span class="token string">"Madrid"</span> → <span class="token number">0.03</span>
+<span class="token string">"Rome"</span> → <span class="token number">0.02</span>
+<span class="token string">"Other tokens"</span> → <span class="token number">0.01</span></code></pre></div>
+<p>With top-k = 3, we would:</p>
+<ol>
+<li>Keep only the 3 most likely tokens:</li>
+</ol>
+<div class="gatsby-highlight" data-language="python"><pre class="language-python"><code class="language-python"><span class="token string">"Paris"</span> → <span class="token number">0.60</span>
+<span class="token string">"Lyon"</span> → <span class="token number">0.15</span>
+<span class="token string">"Marseille"</span> → <span class="token number">0.10</span></code></pre></div>
+<ol start="2">
+<li>Renormalize the probabilities to sum to 1:</li>
+</ol>
+<div class="gatsby-highlight" data-language="python"><pre class="language-python"><code class="language-python"><span class="token string">"Paris"</span> → <span class="token number">0.60</span> <span class="token operator">/</span> <span class="token number">0.85</span> ≈ <span class="token number">0.706</span> <span class="token punctuation">(</span><span class="token number">70.6</span><span class="token operator">%</span><span class="token punctuation">)</span>
+<span class="token string">"Lyon"</span> → <span class="token number">0.15</span> <span class="token operator">/</span> <span class="token number">0.85</span> ≈ <span class="token number">0.176</span> <span class="token punctuation">(</span><span class="token number">17.6</span><span class="token operator">%</span><span class="token punctuation">)</span>
+<span class="token string">"Marseille"</span> → <span class="token number">0.10</span> <span class="token operator">/</span> <span class="token number">0.85</span> ≈ <span class="token number">0.118</span> <span class="token punctuation">(</span><span class="token number">11.8</span><span class="token operator">%</span><span class="token punctuation">)</span></code></pre></div>
+<h3 id="implementation-example" style="position:relative;"><a href="#implementation-example" aria-label="implementation example permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Implementation Example</h3>
+<p>Here’s how we can implement top-k sampling:</p>
+<div class="gatsby-highlight" data-language="python"><pre class="language-python"><code class="language-python"><span class="token keyword">def</span> <span class="token function">apply_top_k</span><span class="token punctuation">(</span>
+    probs<span class="token punctuation">:</span> Dict<span class="token punctuation">[</span><span class="token builtin">str</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">,</span> 
+    k<span class="token punctuation">:</span> <span class="token builtin">int</span>
+<span class="token punctuation">)</span> <span class="token operator">-</span><span class="token operator">></span> Dict<span class="token punctuation">[</span><span class="token builtin">str</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">]</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""
+    Apply top-k sampling to a probability distribution.
+    
+    Args:
+        probs (Dict[str, float]): Original token probabilities
+        k (int): Number of top tokens to keep
+        
+    Returns:
+        Dict[str, float]: Modified probability distribution
+    """</span>
+    <span class="token comment"># Sort tokens by probability</span>
+    sorted_probs <span class="token operator">=</span> <span class="token builtin">sorted</span><span class="token punctuation">(</span>
+        probs<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span> 
+        key<span class="token operator">=</span><span class="token keyword">lambda</span> x<span class="token punctuation">:</span> x<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> 
+        reverse<span class="token operator">=</span><span class="token boolean">True</span>
+    <span class="token punctuation">)</span>
+    
+    <span class="token comment"># Keep only top k tokens</span>
+    top_k_tokens <span class="token operator">=</span> sorted_probs<span class="token punctuation">[</span><span class="token punctuation">:</span>k<span class="token punctuation">]</span>
+    
+    <span class="token comment"># Create new distribution with only selected tokens</span>
+    new_probs <span class="token operator">=</span> <span class="token builtin">dict</span><span class="token punctuation">(</span>top_k_tokens<span class="token punctuation">)</span>
+    
+    <span class="token comment"># Renormalize probabilities</span>
+    normalization <span class="token operator">=</span> <span class="token builtin">sum</span><span class="token punctuation">(</span>new_probs<span class="token punctuation">.</span>values<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span>
+        token<span class="token punctuation">:</span> prob <span class="token operator">/</span> normalization 
+        <span class="token keyword">for</span> token<span class="token punctuation">,</span> prob <span class="token keyword">in</span> new_probs<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+<span class="token comment"># Example showing different k values</span>
+distribution <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"Paris"</span><span class="token punctuation">:</span> <span class="token number">0.60</span><span class="token punctuation">,</span>
+    <span class="token string">"Lyon"</span><span class="token punctuation">:</span> <span class="token number">0.15</span><span class="token punctuation">,</span>
+    <span class="token string">"Marseille"</span><span class="token punctuation">:</span> <span class="token number">0.10</span><span class="token punctuation">,</span>
+    <span class="token string">"London"</span><span class="token punctuation">:</span> <span class="token number">0.05</span><span class="token punctuation">,</span>
+    <span class="token string">"Berlin"</span><span class="token punctuation">:</span> <span class="token number">0.04</span><span class="token punctuation">,</span>
+    <span class="token string">"Madrid"</span><span class="token punctuation">:</span> <span class="token number">0.03</span><span class="token punctuation">,</span>
+    <span class="token string">"Rome"</span><span class="token punctuation">:</span> <span class="token number">0.02</span><span class="token punctuation">,</span>
+    <span class="token string">"Other"</span><span class="token punctuation">:</span> <span class="token number">0.01</span>
+<span class="token punctuation">}</span>
+
+k_values <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">,</span> <span class="token number">3</span><span class="token punctuation">,</span> <span class="token number">4</span><span class="token punctuation">]</span>
+<span class="token keyword">for</span> k <span class="token keyword">in</span> k_values<span class="token punctuation">:</span>
+    modified <span class="token operator">=</span> apply_top_k<span class="token punctuation">(</span>distribution<span class="token punctuation">,</span> k<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"\nTop-k </span><span class="token interpolation"><span class="token punctuation">{</span>k<span class="token punctuation">}</span></span><span class="token string">:"</span></span><span class="token punctuation">)</span>
+    <span class="token keyword">for</span> token<span class="token punctuation">,</span> prob <span class="token keyword">in</span> modified<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"</span><span class="token interpolation"><span class="token punctuation">{</span>token<span class="token punctuation">}</span></span><span class="token string">: </span><span class="token interpolation"><span class="token punctuation">{</span>prob<span class="token punctuation">:</span><span class="token format-spec">.3f</span><span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span></code></pre></div>
+<h3 id="comparing-sampling-methods" style="position:relative;"><a href="#comparing-sampling-methods" aria-label="comparing sampling methods permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Comparing Sampling Methods</h3>
+<p>Let’s examine how top-k compares to our other sampling methods:</p>
 <ol>
 <li>
-<p><strong>Avoiding Extreme Values</strong></p>
+<p><strong>Top-k vs Temperature</strong></p>
 <ul>
-<li>Very high temperatures (>1.5) often produce gibberish</li>
-<li>Extremely low top-p values (&#x3C;0.1) can make outputs too restrictive</li>
+<li>Temperature: Modifies the entire distribution, making it sharper or flatter</li>
+<li>Top-k: Simply cuts off all but the k most likely tokens</li>
+<li>Temperature can work with top-k, modifying probabilities before the cutoff</li>
 </ul>
 </li>
 <li>
-<p><strong>Combining Parameters</strong>
-When using both temperature and top-p:</p>
+<p><strong>Top-k vs Top-p</strong></p>
 <ul>
-<li>Apply temperature first to modify the distribution</li>
-<li>Then apply top-p sampling to the modified distribution</li>
-<li>Be careful not to be too restrictive with both parameters</li>
-</ul>
-</li>
-<li>
-<p><strong>Context Sensitivity</strong></p>
-<ul>
-<li>Different parts of your application might benefit from different sampling settings</li>
-<li>Consider dynamically adjusting parameters based on the context or user needs</li>
+<li>Top-k: Uses a fixed number of tokens</li>
+<li>Top-p: Adapts the number of tokens based on probability mass</li>
+<li>Top-p is generally more flexible and context-aware</li>
 </ul>
 </li>
 </ol>
+<h3 id="limitations-of-top-k" style="position:relative;"><a href="#limitations-of-top-k" aria-label="limitations of top k permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Limitations of Top-k</h3>
+<p>Top-k sampling has some important limitations:</p>
+<ol>
+<li>
+<p><strong>Fixed Cutoff</strong>: Using a fixed k regardless of the probability distribution can be problematic:</p>
+<div class="gatsby-highlight" data-language="python"><pre class="language-python"><code class="language-python"><span class="token comment"># Case 1: Sharp distribution</span>
+<span class="token string">"the"</span> → <span class="token number">0.9</span>
+<span class="token string">"a"</span> → <span class="token number">0.05</span>
+<span class="token string">"an"</span> → <span class="token number">0.03</span>
+<span class="token string">"that"</span> → <span class="token number">0.02</span>
+
+<span class="token comment"># Case 2: Flat distribution</span>
+<span class="token string">"blue"</span> → <span class="token number">0.3</span>
+<span class="token string">"red"</span> → <span class="token number">0.28</span>
+<span class="token string">"green"</span> → <span class="token number">0.27</span>
+<span class="token string">"yellow"</span> → <span class="token number">0.15</span></code></pre></div>
+<p>With k=2, we’d keep two tokens in both cases, even though this makes more sense in Case 1 than Case 2.</p>
+</li>
+<li>
+<p><strong>Arbitrary Cutoffs</strong>: Similar tokens might be treated very differently if they fall just above or below k:</p>
+<div class="gatsby-highlight" data-language="python"><pre class="language-python"><code class="language-python">k <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">:</span>
+<span class="token string">"dog"</span> → <span class="token number">0.4</span> <span class="token punctuation">(</span>kept<span class="token punctuation">)</span>
+<span class="token string">"cat"</span> → <span class="token number">0.3</span> <span class="token punctuation">(</span>kept<span class="token punctuation">)</span>
+<span class="token string">"puppy"</span> → <span class="token number">0.2</span> <span class="token punctuation">(</span>kept<span class="token punctuation">)</span>
+<span class="token string">"kitten"</span> → <span class="token number">0.1</span> <span class="token punctuation">(</span>discarded despite similarity to kept tokens<span class="token punctuation">)</span></code></pre></div>
+</li>
+</ol>
+<h3 id="when-to-use-top-k" style="position:relative;"><a href="#when-to-use-top-k" aria-label="when to use top k permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>When to Use Top-k</h3>
+<p>Despite its limitations, top-k can be useful in specific scenarios:</p>
+<ol>
+<li>When you want precise control over the maximum number of tokens to consider</li>
+<li>In systems with computational constraints where evaluating more tokens is expensive</li>
+<li>Combined with temperature to prevent sampling from the long tail while still allowing probability modification</li>
+</ol>
+<h3 id="best-practices" style="position:relative;"><a href="#best-practices" aria-label="best practices permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Best Practices</h3>
+<ol>
+<li><strong>Choosing k</strong>: Start with k values between 20-100 for general text generation</li>
+<li><strong>Combining Methods</strong>: Consider using top-k with temperature or combining all three methods</li>
+<li><strong>Testing</strong>: Always test different k values with your specific use case and model</li>
+</ol>
+<p>The code implementation lets you experiment with different k values and see their effects on the probability distribution. Try running it with different initial distributions and k values to build intuition about how top-k sampling behaves.</p>
 <h2 id="implementation-examples" style="position:relative;"><a href="#implementation-examples" aria-label="implementation examples permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Implementation Examples</h2>
 <p>Let’s implement both temperature and top-p sampling in Python, with detailed examples showing how they transform probability distributions. We’ll start with some utility functions and then implement each sampling method.</p>
 <h3 id="utility-functions" style="position:relative;"><a href="#utility-functions" aria-label="utility functions permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Utility Functions</h3>
@@ -512,4 +627,12 @@ parameter_sets <span class="token operator">=</span> <span class="token punctuat
 <p>The example usage sections demonstrate how to use each function and help build intuition about how these parameters affect token selection in practice.</p>
 <h2 id="conclusion" style="position:relative;"><a href="#conclusion" aria-label="conclusion permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Conclusion</h2>
 <p>Understanding temperature and top-p sampling is crucial for getting the most out of LLMs. These parameters offer fine-grained control over the balance between creativity and determinism in model outputs. By carefully tuning these parameters based on your specific use case, you can significantly improve the quality and appropriateness of generated content.</p>
-<p>Remember that there’s no one-size-fits-all setting – experimentation is key to finding the right balance for your specific application. Consider creating a systematic testing process to evaluate different parameter combinations for your particular use case.</p></div></div></div><div class="Post-module--footer--f8705"><div class="Meta-module--meta--dae0a"><p class="Meta-module--date--4d30d">Feb 24, 2025</p></div><div class="Tags-module--tags--18589"><ul class="Tags-module--list--82ae6"><li class="Tags-module--item--52015"><a class="Button-module--button--b1113" href="/tag/llm/">LLM</a></li></ul></div><div class="Author-module--author--1c58d"><p class="Author-module--bio--08950">AI Enthusiast and a Software Engineer<a class="Author-module--twitter--90647" href="https://www.linkedin.com/in/byeongjinkang" rel="noopener noreferrer" target="_blank"><strong>Jason Kang</strong> on LinkedIn</a></p></div></div><div class="Post-module--comments--d3b99"></div></div></div></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/llm/understanding-temperature-and-top-p-sampling-in-large-language-models";window.___webpackCompilationHash="e3c828ec58d76d4d38e1";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"app":["/app-2ee16468ea5c8f804441.js"],"component---cache-caches-gatsby-plugin-offline-app-shell-js":["/component---cache-caches-gatsby-plugin-offline-app-shell-js-02abafd21f3ca3501462.js"],"component---src-templates-categories-template-categories-template-tsx":["/component---src-templates-categories-template-categories-template-tsx-b449ea18ac689b1b4d05.js"],"component---src-templates-category-template-category-template-tsx":["/component---src-templates-category-template-category-template-tsx-f25335f9ad4d1e083e1e.js"],"component---src-templates-index-template-index-template-tsx":["/component---src-templates-index-template-index-template-tsx-574bb2c842b72a4f56d6.js"],"component---src-templates-not-found-template-not-found-template-tsx":["/component---src-templates-not-found-template-not-found-template-tsx-87d8cb04f32ef1c28bb0.js"],"component---src-templates-page-template-page-template-tsx":["/component---src-templates-page-template-page-template-tsx-beeff9f32d60af6e299a.js"],"component---src-templates-post-template-post-template-tsx":["/component---src-templates-post-template-post-template-tsx-31ec0693570d1b8d96bc.js"],"component---src-templates-tag-template-tag-template-tsx":["/component---src-templates-tag-template-tag-template-tsx-dbf1278bb80575247891.js"],"component---src-templates-tags-template-tags-template-tsx":["/component---src-templates-tags-template-tags-template-tsx-e89bc401e74db52ece1a.js"]};/*]]>*/</script><script src="/app-2ee16468ea5c8f804441.js" async=""></script><script src="/framework-8a6e3897e8f1c55b7396.js" async=""></script><script src="/webpack-runtime-ffb5d81ba55c26a27e7d.js" async=""></script></body></html>
+<p>Remember that there’s no one-size-fits-all setting – experimentation is key to finding the right balance for your specific application. Consider creating a systematic testing process to evaluate different parameter combinations for your particular use case.</p>
+<h2 id="additional-resources" style="position:relative;"><a href="#additional-resources" aria-label="additional resources permalink" class="anchor before"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Additional Resources</h2>
+<p>For those interested in diving deeper into this topic, I recommend exploring:</p>
+<ul>
+<li>The original Nucleus Sampling paper by Holtzman et al.</li>
+<li>Practical implementations in popular LLM frameworks</li>
+<li>Real-world case studies of parameter tuning in production systems</li>
+</ul>
+<p>What sampling strategies have you found most effective in your LLM applications? Share your experiences and insights in the comments below!</p></div></div></div><div class="Post-module--footer--f8705"><div class="Meta-module--meta--dae0a"><p class="Meta-module--date--4d30d">Feb 24, 2025</p></div><div class="Tags-module--tags--18589"><ul class="Tags-module--list--82ae6"><li class="Tags-module--item--52015"><a class="Button-module--button--b1113" href="/tag/llm/">LLM</a></li></ul></div><div class="Author-module--author--1c58d"><p class="Author-module--bio--08950">AI Enthusiast and a Software Engineer<a class="Author-module--twitter--90647" href="https://www.linkedin.com/in/byeongjinkang" rel="noopener noreferrer" target="_blank"><strong>Jason Kang</strong> on LinkedIn</a></p></div></div><div class="Post-module--comments--d3b99"></div></div></div></div><div id="gatsby-announcer" style="position:absolute;top:0;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0, 0, 0, 0);white-space:nowrap;border:0" aria-live="assertive" aria-atomic="true"></div></div><script id="gatsby-script-loader">/*<![CDATA[*/window.pagePath="/llm/understanding-temperature-and-top-p-sampling-in-large-language-models";window.___webpackCompilationHash="2845a72eb8c8bdd59ecc";/*]]>*/</script><script id="gatsby-chunk-mapping">/*<![CDATA[*/window.___chunkMapping={"app":["/app-3ed9df6d116166a34612.js"],"component---cache-caches-gatsby-plugin-offline-app-shell-js":["/component---cache-caches-gatsby-plugin-offline-app-shell-js-02abafd21f3ca3501462.js"],"component---src-templates-categories-template-categories-template-tsx":["/component---src-templates-categories-template-categories-template-tsx-b449ea18ac689b1b4d05.js"],"component---src-templates-category-template-category-template-tsx":["/component---src-templates-category-template-category-template-tsx-f25335f9ad4d1e083e1e.js"],"component---src-templates-index-template-index-template-tsx":["/component---src-templates-index-template-index-template-tsx-574bb2c842b72a4f56d6.js"],"component---src-templates-not-found-template-not-found-template-tsx":["/component---src-templates-not-found-template-not-found-template-tsx-87d8cb04f32ef1c28bb0.js"],"component---src-templates-page-template-page-template-tsx":["/component---src-templates-page-template-page-template-tsx-beeff9f32d60af6e299a.js"],"component---src-templates-post-template-post-template-tsx":["/component---src-templates-post-template-post-template-tsx-31ec0693570d1b8d96bc.js"],"component---src-templates-tag-template-tag-template-tsx":["/component---src-templates-tag-template-tag-template-tsx-dbf1278bb80575247891.js"],"component---src-templates-tags-template-tags-template-tsx":["/component---src-templates-tags-template-tags-template-tsx-e89bc401e74db52ece1a.js"]};/*]]>*/</script><script src="/app-3ed9df6d116166a34612.js" async=""></script><script src="/framework-8a6e3897e8f1c55b7396.js" async=""></script><script src="/webpack-runtime-ffb5d81ba55c26a27e7d.js" async=""></script></body></html>
