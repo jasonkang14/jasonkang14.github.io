@@ -6,7 +6,7 @@ draft: false
 slug: "/ai/metrics-summary"
 category: "AI"
 tags:
-  - "AI",
+  - "AI"
   - "LLM"
 
 description: "A comprehensive guide to essential machine learning metrics, from classification and regression to ranking and clustering, with real-world examples and practical applications."
