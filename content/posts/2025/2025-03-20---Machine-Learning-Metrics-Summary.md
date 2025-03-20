@@ -1,15 +1,15 @@
 ---
-title: "Machine Learning Metrics Summary" 
+title: "Complete Guide to Machine Learning Evaluation Metrics: From Classification to Business Impact" 
 date: "2025-03-20T20:35:37.121Z"
 template: "post"
 draft: false
-slug: "/ai/metrics-summary"
+slug: "/ai/machine-learning-evaluation-metrics-guide"
 category: "AI"
 tags:
   - "AI"
   - "LLM"
 
-description: "A comprehensive guide to essential machine learning metrics, from classification and regression to ranking and clustering, with real-world examples and practical applications."
+description: "Master the art of evaluating machine learning models with this comprehensive guide covering classification, regression, ranking, clustering metrics, and real-world business impact. Includes practical examples and best practices for model evaluation."
 ---
 
 # Essential Metrics for Evaluating Machine Learning Models
